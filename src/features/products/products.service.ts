@@ -8,7 +8,7 @@
 
 import { type PrismaClient } from "../../../generated/prisma/client";
 import { HttpError } from "../../shared/errors/http-error";
-import { hanldePrismaError } from "../../shared/utils/prisma-error-handler";
+import { handlePrisma } from "../../shared/utils/prisma-error-handler";
 import type { CreateProductDto } from "./dto/create-product.dto";
 import type { UpdateProductDto } from "./dto/update-product.dto";
 
@@ -33,7 +33,7 @@ export class ProductService {
     try {
       return this.prisma.product.create({ data: createProductDto });
     } catch (err) {
-      hanldePrismaError(err, "Product");
+      handlePrisma(err, "Product");
     }
   }
 
@@ -44,7 +44,7 @@ export class ProductService {
         data: updateProductDro,
       });
     } catch (err) {
-      hanldePrismaError(err, "Product");
+      handlePrisma(err, "Product");
     }
   }
 
@@ -52,7 +52,7 @@ export class ProductService {
     try {
       return await this.prisma.product.delete({ where: { id } });
     } catch (err) {
-      hanldePrismaError(err, "Product");
+      handlePrisma(err, "Product");
     }
   }
 }

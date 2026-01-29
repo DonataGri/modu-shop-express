@@ -1,7 +1,7 @@
 import { Prisma } from "../../../generated/prisma/client";
 import { HttpError } from "../errors/http-error";
 
-export function hanldePrismaError(err: unknown, entityName = "Resource"): void {
+export function handlePrisma(err: unknown, entityName = "Resource"): void {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2025") {
       throw new HttpError(404, `${entityName} not found`);

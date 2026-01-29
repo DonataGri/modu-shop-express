@@ -8,15 +8,15 @@
 
 import { type PrismaClient } from "../../../generated/prisma/client";
 import { HttpError } from "../../shared/errors/http-error";
-import { handlePrisma } from "../../shared/utils/prisma-error-handler";
+import { handlePrismaError } from "../../shared/utils/prisma-error-handler";
 import type { CreateProductDto } from "./dto/create-product.dto";
 import type { UpdateProductDto } from "./dto/update-product.dto";
 
 export class ProductService {
   constructor(private prisma: PrismaClient) {}
 
-  findAll() {
-    return this.prisma.product.findMany();
+  async findAll() {
+    return await this.prisma.product.findMany();
   }
 
   async findById(id: number) {
@@ -29,11 +29,11 @@ export class ProductService {
     return product;
   }
 
-  create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto) {
     try {
-      return this.prisma.product.create({ data: createProductDto });
+      return await this.prisma.product.create({ data: createProductDto });
     } catch (err) {
-      handlePrisma(err, "Product");
+      handlePrismaError(err, "Product");
     }
   }
 
@@ -44,7 +44,7 @@ export class ProductService {
         data: updateProductDro,
       });
     } catch (err) {
-      handlePrisma(err, "Product");
+      handlePrismaError(err, "Product");
     }
   }
 
@@ -52,7 +52,7 @@ export class ProductService {
     try {
       return await this.prisma.product.delete({ where: { id } });
     } catch (err) {
-      handlePrisma(err, "Product");
+      handlePrismaError(err, "Product");
     }
   }
 }

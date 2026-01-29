@@ -10,8 +10,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,js}": "eslint .",
-    "*.json": "prettier --write"
+    "**/*.{js,ts}": "eslint --fix"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",

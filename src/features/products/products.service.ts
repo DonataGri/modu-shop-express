@@ -6,7 +6,7 @@
  * - Knows nothing about HTTP (no req, res)
  */
 
-import { Prisma, type PrismaClient } from "../../../generated/prisma/client";
+import { type PrismaClient } from "../../../generated/prisma/client";
 import { HttpError } from "../../shared/errors/http-error";
 import { hanldePrismaError } from "../../shared/utils/prisma-error-handler";
 import type { CreateProductDto } from "./dto/create-product.dto";

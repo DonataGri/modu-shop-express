@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import express, {
   type NextFunction,
   type Request,
@@ -12,7 +13,7 @@ app.use(express.json());
 
 app.use("/products", productRoutes);
 
-app.use((err, req: Request, res: Response, next: NextFunction) => {
+app.use((err, req: Request, res: Response, _next: NextFunction) => {
   const status = err.statusCode || 500;
   const message = err.isOperational ? err.message : "Internal service error";
 

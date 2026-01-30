@@ -1,8 +1,26 @@
 import eslint from "@eslint/js";
-import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
+import prettier from "eslint-config-prettier";
 
-export default defineConfig(
+export default [
   eslint.configs.recommended,
-  tseslint.configs.recommended,
-);
+  ...tseslint.configs.recommended,
+  prettier,
+  {
+    files: ["**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.json",
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
+    },
+  },
+  {
+    ignores: ["node_modules", "dist", "generated"],
+  },
+];

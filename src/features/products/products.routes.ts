@@ -2,9 +2,9 @@
 import { Router } from "express";
 import type { ProductController } from "./products.controller";
 import { asyncHandler } from "../../shared/utils/async-handler";
-import { CreateProductDto } from "./dto/create-product.dto";
 import { validate, validateId } from "../../shared/utils/middlewares/validate";
-import { UpdateProductDto } from "./dto/update-product.dto";
+import { createProductSchema } from "../../validation/create-product.schema";
+import { updateProductSchema } from "../../validation/update-product.schema";
 
 export function createProductRoutes(controller: ProductController) {
   const router = Router();
@@ -16,25 +16,25 @@ export function createProductRoutes(controller: ProductController) {
 
   router.get(
     "/:id",
-    validateId(),
+    validateId,
     asyncHandler<{ id: string }>((req, res) => controller.findById(req, res)),
   );
 
   router.post(
     "/",
-    validate(CreateProductDto),
+    validate(createProductSchema),
     asyncHandler((req, res) => controller.create(req, res)),
   );
 
   router.put(
     "/:id",
-    [validate(UpdateProductDto), validateId()],
+    [validate(updateProductSchema), validateId],
     asyncHandler<{ id: string }>((req, res) => controller.update(req, res)),
   );
 
   router.delete(
     "/:id",
-    validateId(),
+    validateId,
     asyncHandler<{ id: string }>((req, res) => controller.delete(req, res)),
   );
 

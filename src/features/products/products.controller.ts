@@ -37,6 +37,6 @@ export class ProductController {
   async delete(req: Request<{ id: string }>, res: Response) {
     const id = parseInt(req.params.id, 10);
     await this.productService.delete(id);
-    res.status(204).send();
+    res.status(200).send();
   }
 }

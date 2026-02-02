@@ -29,15 +29,15 @@ export function validate<T extends object>(dtoClass: ClassType<T>) {
       });
     }
 
-    // 1. Transofrm plain JSON -> class instance
+    // 1. Transform plain JSON -> class instance
     const dto = plainToClass(dtoClass, req.body);
 
     // 2. Validate against decorators
-    const errors = await classValidate(dto);
+    const errors = await classValidate(dto, { whitelist: true });
 
     // 3. Return 400 if errors
     if (errors.length > 0) {
-      res.status(400).json({
+      return res.status(400).json({
         message: "Validation failed",
         errors: formatErrors(errors),
       });

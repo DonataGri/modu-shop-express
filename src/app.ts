@@ -4,13 +4,14 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import { productRoutes } from "./container";
+import { authRoute, productRoutes } from "./container";
 
 const app = express();
 
 app.use(express.json());
 
 app.use("/products", productRoutes);
+app.use("/auth", authRoute);
 
 app.use((err, req: Request, res: Response, _next: NextFunction) => {
   const status = err.statusCode || 500;

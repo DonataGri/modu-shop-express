@@ -4,12 +4,19 @@ import { ProductController } from "./features/products/products.controller";
 import { createProductRoutes } from "./features/products/products.routes";
 import { ProductService } from "./features/products/products.service";
 import { PrismaClient } from "../generated/prisma/client";
+import { AuthController } from "./features/auth/auth.controller";
+import { AuthService } from "./features/auth/auth.service";
+import { createAuthRoutes } from "./features/auth/auth.routes";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
-export const productService = new ProductService(prisma);
+const productService = new ProductService(prisma);
+const authService = new AuthService(prisma);
 
 const productController = new ProductController(productService);
 export const productRoutes = createProductRoutes(productController);
+
+const authController = new AuthController(authService);
+export const authRoute = createAuthRoutes(authController);

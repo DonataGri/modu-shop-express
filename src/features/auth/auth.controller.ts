@@ -13,7 +13,7 @@ export class AuthController {
 
   async login(req: Request<object, object, CredentialsDto>, res: Response) {
     const { email, password } = req.body;
-    const user = await this.authService.login(email, password);
-    res.status(200).json(user);
+    const result = await this.authService.login(email, password);
+    res.status(200).json(result);
   }
 }

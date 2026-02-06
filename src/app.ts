@@ -5,15 +5,16 @@ import express, {
   type Response,
 } from "express";
 import { authRoute, productRoutes } from "./container";
+import { authenticate } from "./shared/utils/middlewares/authenticate";
 
 const app = express();
 
 app.use(express.json());
 
-app.use("/products", productRoutes);
+app.use("/products", authenticate(), productRoutes);
 app.use("/auth", authRoute);
 
-app.use((err, req: Request, res: Response, _next: NextFunction) => {
+app.use((err, _req: Request, res: Response, _next: NextFunction) => {
   const status = err.statusCode || 500;
   const message = err.isOperational ? err.message : "Internal service error";
 

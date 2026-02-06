@@ -1,4 +1,6 @@
 import bcrypt from "bcrypt";
+import "dotenv/config";
+import jwt from "jsonwebtoken";
 import type { PrismaClient } from "../../../generated/prisma/client";
 import { HttpError } from "../../shared/errors/http-error";
 import type { User, UserWithoutPassword } from "../user/user.types";
@@ -41,6 +43,12 @@ export class AuthService {
       throw new HttpError(401, "Invalid credentials");
     }
 
-    return this.excludePassword(user);
+    const token = jwt.sign(
+      { sub: user.id, email: user.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1h" },
+    );
+
+    return { user: this.excludePassword(user), token };
   }
 }

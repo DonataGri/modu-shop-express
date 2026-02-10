@@ -3,6 +3,7 @@ import express, {
   type NextFunction,
   type Request,
   type Response,
+  type ErrorRequestHandler,
 } from "express";
 import { authRoute, productRoutes } from "./container";
 import { authenticate } from "./shared/utils/middlewares/authenticate";
@@ -14,7 +15,20 @@ app.use(express.json());
 app.use("/products", authenticate(), productRoutes);
 app.use("/auth", authRoute);
 
-app.use((err, _req: Request, res: Response, _next: NextFunction) => {
+app.get("/", (_: Request, res: Response) => {
+  res.json({ message: "Hello World!" });
+});
+
+app.get("/health", (_: Request, res: Response) => {
+  res.json({ status: "OK" });
+});
+
+const errorHandler: ErrorRequestHandler = (
+  err,
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+) => {
   const status = err.statusCode || 500;
   const message = err.isOperational ? err.message : "Internal service error";
 
@@ -23,14 +37,8 @@ app.use((err, _req: Request, res: Response, _next: NextFunction) => {
   res.status(status).json({
     message,
   });
-});
+};
 
-app.get("/", (_: Request, res: Response) => {
-  res.json({ message: "Hello World!" });
-});
-
-app.get("health", (_: Request, res: Response) => {
-  res.json({ status: "OK" });
-});
+app.use(errorHandler);
 
 export default app;

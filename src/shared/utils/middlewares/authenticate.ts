@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import "dotenv/config";
+import { env } from "../../../shared/config/env";
 import { HttpError } from "../../errors/http-error";
 
 type JwtUser = { sub: number; email: string; iat: number; exp: number };
@@ -15,7 +15,7 @@ export function authenticate() {
     const authToken = authHeader.replace("Bearer ", "");
 
     try {
-      const validUser = jwt.verify(authToken, process.env.JWT_SECRET!);
+      const validUser = jwt.verify(authToken, env.JWT_SECRET!);
       req.user = validUser as unknown as JwtUser;
       next();
     } catch (err) {

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "target": "ES2020",
-    "module": "ES2020",
+    "module": "commonjs",
     "lib": ["ES2020"],
     "strict": true,
     "esModuleInterop": true,
@@ -20,10 +20,10 @@
     // "noUnusedParameters": true,
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
-    "verbatimModuleSyntax": true,
+    // "verbatimModuleSyntax": true,
     "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "moduleResolution": "bundler",
+    // "moduleDetection": "force",
+    // "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true

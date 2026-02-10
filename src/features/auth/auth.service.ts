@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
-import "dotenv/config";
 import jwt from "jsonwebtoken";
+import { env } from "../../shared/config/env";
 import type { PrismaClient } from "../../../generated/prisma/client";
 import { HttpError } from "../../shared/errors/http-error";
 import type { User, UserWithoutPassword } from "../user/user.types";
@@ -45,7 +45,7 @@ export class AuthService {
 
     const token = jwt.sign(
       { sub: user.id, email: user.email },
-      process.env.JWT_SECRET!,
+      env.JWT_SECRET!,
       { expiresIn: "1h" },
     );
 

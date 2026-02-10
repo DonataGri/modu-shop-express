@@ -1,4 +1,4 @@
-import "dotenv/config";
+import { env } from "./shared/config/env";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { ProductController } from "./features/products/products.controller";
 import { createProductRoutes } from "./features/products/products.routes";
@@ -8,7 +8,7 @@ import { AuthController } from "./features/auth/auth.controller";
 import { AuthService } from "./features/auth/auth.service";
 import { createAuthRoutes } from "./features/auth/auth.routes";
 
-const connectionString = `${process.env.DATABASE_URL}`;
+const connectionString = `${env.DATABASE_URL}`;
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 

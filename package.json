@@ -2,10 +2,10 @@
   "name": "modu-shop-express",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "tsx --watch src/server.ts",
-    "start": "node dist/app.js",
+    "start": "node dist/src/server.js",
+    "build": "tsc -p tsconfig.build.json",
     "test": "vitest",
     "test:run": "vitest run",
     "lint": "eslint .",

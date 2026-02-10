@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../../../shared/config/env";
 import { HttpError } from "../../errors/http-error";
+import { logger } from "../../logger";
 
 type JwtUser = { sub: number; email: string; iat: number; exp: number };
 
@@ -19,7 +20,7 @@ export function authenticate() {
       req.user = validUser as unknown as JwtUser;
       next();
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       throw new HttpError(401, "Unauthorized");
     }
   };

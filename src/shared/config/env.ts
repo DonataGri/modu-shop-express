@@ -8,6 +8,7 @@ if (missing.length > 0) {
   throw new Error(`Missing environment variables: ${missing.join(", ")}`);
 }
 export const env = {
+  LOG_LEVEL: process.env.LOG_LEVEL || "info",
   NODE_ENV: process.env.NODE_ENV || "dev",
   PORT: process.env.PORT || "3000",
   JWT_SECRET: process.env.JWT_SECRET!,

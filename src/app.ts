@@ -5,12 +5,15 @@ import express, {
   type Response,
   type ErrorRequestHandler,
 } from "express";
+import morgan from "morgan";
 import { authRoute, productRoutes } from "./container";
 import { authenticate } from "./shared/utils/middlewares/authenticate";
+import { logger } from "./shared/logger";
 
 const app = express();
 
 app.use(express.json());
+app.use(morgan("tiny"));
 
 app.use("/products", authenticate(), productRoutes);
 app.use("/auth", authRoute);
@@ -32,7 +35,7 @@ const errorHandler: ErrorRequestHandler = (
   const status = err.statusCode || 500;
   const message = err.isOperational ? err.message : "Internal service error";
 
-  console.error(err); // for devs
+  logger.error(err);
 
   res.status(status).json({
     message,

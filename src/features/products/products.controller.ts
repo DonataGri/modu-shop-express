@@ -18,8 +18,7 @@ export class ProductController {
   }
 
   async findById(req: Request<{ id: string }>, res: Response) {
-    const id = parseInt(req.params.id, 10);
-    const product = await this.productService.findById(id);
+    const product = await this.productService.findById(req.params.id);
     res.json(product);
   }
 
@@ -29,14 +28,12 @@ export class ProductController {
   }
 
   async update(req: Request<{ id: string }>, res: Response) {
-    const id = parseInt(req.params.id, 10);
-    const product = await this.productService.update(id, req.body);
+    const product = await this.productService.update(req.params.id, req.body);
     res.json(product);
   }
 
   async delete(req: Request<{ id: string }>, res: Response) {
-    const id = parseInt(req.params.id, 10);
-    await this.productService.delete(id);
+    await this.productService.delete(req.params.id);
     res.status(200).send();
   }
 }

@@ -3,6 +3,7 @@ import { ProductService } from "./products.service";
 import { HttpError } from "../../shared/errors/http-error";
 import { Prisma, PrismaClient } from "../../../generated/prisma/client";
 
+const TEST_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
 // Mock Prisma client
 const mockPrisma = {
   product: {
@@ -24,7 +25,7 @@ describe("ProductService", () => {
 
   describe("findAll", () => {
     it("should return all products", async () => {
-      const products = [{ id: 1, name: "Test" }];
+      const products = [{ id: TEST_UUID, name: "Test" }];
       mockPrisma.product.findMany.mockResolvedValue(products);
 
       const result = await service.findAll();
@@ -42,22 +43,22 @@ describe("ProductService", () => {
 
   describe("findUnique", () => {
     it("should return product by given id", async () => {
-      const products = [{ id: 1, name: "Test" }];
+      const products = [{ id: TEST_UUID, name: "Test" }];
       mockPrisma.product.findUnique.mockResolvedValue(products);
 
-      const result = await service.findById(1);
+      const result = await service.findById(TEST_UUID);
 
       expect(result).toEqual(products);
       expect(mockPrisma.product.findUnique).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: TEST_UUID },
       });
     });
 
     it("should throw 404 when product not found", async () => {
       mockPrisma.product.findUnique.mockResolvedValue(null);
 
-      await expect(service.findById(999)).rejects.toThrow(HttpError);
-      await expect(service.findById(999)).rejects.toMatchObject({
+      await expect(service.findById("UUID-999")).rejects.toThrow(HttpError);
+      await expect(service.findById("UUI-999")).rejects.toMatchObject({
         statusCode: 404,
         message: "Product not found",
       });
@@ -70,7 +71,7 @@ describe("ProductService", () => {
         name: "Test Name",
         price: 9.99,
       };
-      const created = { id: 1, ...productDto };
+      const created = { id: TEST_UUID, ...productDto };
 
       mockPrisma.product.create.mockResolvedValue(created);
 
@@ -92,7 +93,7 @@ describe("ProductService", () => {
       };
       mockPrisma.product.update.mockResolvedValue(product);
 
-      const result = await service.update(1, product);
+      const result = await service.update(TEST_UUID, product);
 
       expect(result).toEqual(product);
     });
@@ -105,7 +106,7 @@ describe("ProductService", () => {
       mockPrisma.product.update.mockRejectedValue(prismaError);
 
       await expect(
-        service.update(999, { name: "Updated name" }),
+        service.update("UUID-999", { name: "Updated name" }),
       ).rejects.toThrow(HttpError);
     });
   });
@@ -119,11 +120,11 @@ describe("ProductService", () => {
       };
       mockPrisma.product.delete.mockResolvedValue(product);
 
-      const result = await service.delete(1);
+      const result = await service.delete(TEST_UUID);
 
       expect(result).toEqual(product);
       expect(mockPrisma.product.delete).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: TEST_UUID },
       });
     });
 
@@ -134,7 +135,7 @@ describe("ProductService", () => {
       );
       mockPrisma.product.delete.mockRejectedValue(prismaError);
 
-      await expect(service.delete(999)).rejects.toThrow(HttpError);
+      await expect(service.delete("UUID-999")).rejects.toThrow(HttpError);
     });
   });
 });

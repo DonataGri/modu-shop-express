@@ -19,7 +19,7 @@ export class ProductService {
     return await this.prisma.product.findMany();
   }
 
-  async findById(id: number) {
+  async findById(id: string) {
     const product = await this.prisma.product.findUnique({ where: { id } });
 
     if (!product) {
@@ -37,7 +37,7 @@ export class ProductService {
     }
   }
 
-  async update(id: number, updateProductDro: UpdateProductDto) {
+  async update(id: string, updateProductDro: UpdateProductDto) {
     try {
       return await this.prisma.product.update({
         where: { id },
@@ -48,7 +48,7 @@ export class ProductService {
     }
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     try {
       return await this.prisma.product.delete({ where: { id } });
     } catch (err) {

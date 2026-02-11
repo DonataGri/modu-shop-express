@@ -48,15 +48,3 @@ export function validate<T extends object>(dtoClass: ClassType<T>) {
     next();
   };
 }
-
-export function validateId() {
-  return (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id) || id < 1) {
-      res.status(400).json({ message: "Invalid ID" });
-      return;
-    }
-
-    next();
-  };
-}

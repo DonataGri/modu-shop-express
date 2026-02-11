@@ -5,6 +5,8 @@ import { HttpError } from "../../shared/errors/http-error";
 import app from "../../app";
 import type { ProductService } from "./products.service";
 
+const TEST_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
+
 const { mockService } = vi.hoisted(() => ({
   mockService: {
     findAll: vi.fn(),
@@ -44,7 +46,7 @@ describe("Product Routes", () => {
     it("should return 200 and list of products", async () => {
       const products = [
         {
-          id: 1,
+          id: TEST_UUID,
           name: "Test Product",
           description: "",
           price: 9.99,
@@ -73,7 +75,7 @@ describe("Product Routes", () => {
   describe("GET /products/:id", () => {
     it("should return 200 with product when found", async () => {
       const product = {
-        id: 1,
+        id: TEST_UUID,
         name: "Test Product",
         description: "",
         price: 9.99,
@@ -94,15 +96,9 @@ describe("Product Routes", () => {
         new HttpError(404, "Product not found"),
       );
 
-      const res = await request(app).get("/products/999");
+      const res = await request(app).get("/products/UUID-999");
 
       expect(res.status).toBe(404);
-    });
-
-    it("should return 400 for invalid id", async () => {
-      const res = await request(app).get("/products/abc");
-
-      expect(res.status).toBe(400);
     });
   });
   describe("POST /products", () => {
@@ -113,7 +109,7 @@ describe("Product Routes", () => {
         description: "Nice T-shirt",
       };
       const createdProduct = {
-        id: 1,
+        id: TEST_UUID,
         ...dto,
         updatedAt: new Date(),
         createdAt: new Date(),
@@ -142,7 +138,7 @@ describe("Product Routes", () => {
     it("should return 200 when product updated", async () => {
       const dto = { name: "Updated Name", price: 9.99 };
       const updatedProduct = {
-        id: 1,
+        id: TEST_UUID,
         ...dto,
         description: "Old description",
         updatedAt: new Date(),
@@ -166,14 +162,6 @@ describe("Product Routes", () => {
         .send({ name: "Updated" });
 
       expect(res.status).toBe(404);
-    });
-
-    it("should return 404 for invalid id", async () => {
-      const res = await request(app)
-        .put("/products/abc")
-        .send({ name: "Updated" });
-
-      expect(res.status).toBe(400);
     });
   });
 

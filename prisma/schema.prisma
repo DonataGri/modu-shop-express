@@ -8,16 +8,45 @@ datasource db {
   provider = "postgresql"
 }
 
+enum StoreRole {
+  OWNER
+  STAFF
+}
+
 model User {
-  id           String @id @default(uuid())
+  id           String   @id @default(uuid())
   email        String   @unique
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  userStores UserStore[]
+}
+
+model Store {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String   @unique
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  userStores UserStore[]
+}
+
+model UserStore {
+  id      String    @id @default(uuid())
+  userId  String
+  storeId String
+  role    StoreRole
+
+  user  User  @relation(fields: [userId], references: [id])
+  store Store @relation(fields: [storeId], references: [id])
+
+  @@unique([userId, storeId])
 }
 
 model Product {
-  id          String @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   description String?
   price       Float

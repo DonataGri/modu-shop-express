@@ -37,11 +37,11 @@ export class ProductService {
     }
   }
 
-  async update(id: string, updateProductDro: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto) {
     try {
       return await this.prisma.product.update({
         where: { id },
-        data: updateProductDro,
+        data: updateProductDto,
       });
     } catch (err) {
       handlePrismaError(err, "Product");

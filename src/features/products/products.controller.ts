@@ -6,8 +6,8 @@
  * - Sends the response
  */
 
-import type { ProductService } from "./products.service";
 import type { Request, Response } from "express";
+import type { ProductService } from "./products.service";
 
 export class ProductController {
   constructor(private productService: ProductService) {}

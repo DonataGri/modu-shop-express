@@ -28,6 +28,7 @@ vi.mock("../../container", async () => {
     productService: mockService,
     productRoutes: createProductRoutes(controller),
     authRoute: Router(),
+    storeRoute: Router(),
   };
 });
 

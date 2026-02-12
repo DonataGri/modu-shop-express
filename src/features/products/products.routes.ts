@@ -27,7 +27,7 @@ export function createProductRoutes(controller: ProductController) {
 
   router.put(
     "/:id",
-    [validate(UpdateProductDto)],
+    validate(UpdateProductDto),
     asyncHandler<{ id: string }>((req, res) => controller.update(req, res)),
   );
 

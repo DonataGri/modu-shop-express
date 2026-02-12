@@ -4,7 +4,7 @@ import { HttpError } from "../../shared/errors/http-error";
 import { Prisma, PrismaClient } from "../../../generated/prisma/client";
 
 const TEST_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
-// Mock Prisma client
+
 const mockPrisma = {
   product: {
     findMany: vi.fn(),
@@ -41,9 +41,9 @@ describe("ProductService", () => {
     });
   });
 
-  describe("findUnique", () => {
+  describe("findById", () => {
     it("should return product by given id", async () => {
-      const products = [{ id: TEST_UUID, name: "Test" }];
+      const products = { id: TEST_UUID, name: "Test" };
       mockPrisma.product.findUnique.mockResolvedValue(products);
 
       const result = await service.findById(TEST_UUID);
@@ -58,7 +58,7 @@ describe("ProductService", () => {
       mockPrisma.product.findUnique.mockResolvedValue(null);
 
       await expect(service.findById("UUID-999")).rejects.toThrow(HttpError);
-      await expect(service.findById("UUI-999")).rejects.toMatchObject({
+      await expect(service.findById("UUID-999")).rejects.toMatchObject({
         statusCode: 404,
         message: "Product not found",
       });

@@ -23,6 +23,7 @@ vi.mock("../../container", async () => {
   return {
     productRoutes: Router(),
     authRoute: createAuthRoutes(controller),
+    storeRoute: Router(),
   };
 });
 

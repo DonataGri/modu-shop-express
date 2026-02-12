@@ -33,11 +33,10 @@ vi.mock("../../container", async () => {
 });
 
 vi.mock("../../shared/utils/middlewares/authenticate", () => ({
-  authenticate:
-    () => (req: Request, _res: Response, next: NextFunction) => {
-      req.user = { sub: TEST_UUID };
-      next();
-    },
+  authenticate: () => (req: Request, _res: Response, next: NextFunction) => {
+    req.user = { sub: TEST_UUID, email: "test@test.com", iat: 0, exp: 0 };
+    next();
+  },
 }));
 
 describe("Store Routes", () => {
@@ -49,14 +48,20 @@ describe("Store Routes", () => {
   describe("GET /stores", () => {
     it("should return 200 and list of user stores", async () => {
       const stores = [
-        { id: TEST_UUID, name: "My Store", description: "cool stuff" },
+        {
+          id: TEST_UUID,
+          name: "My Store",
+          description: "cool stuff",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ];
       mockService.findAllByUser.mockResolvedValue(stores);
 
       const res = await request(app).get("/stores");
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(stores);
+      expect(res.body).toEqual(JSON.parse(JSON.stringify(stores)));
       expect(mockService.findAllByUser).toHaveBeenCalledWith(TEST_UUID);
     });
 
@@ -76,13 +81,15 @@ describe("Store Routes", () => {
         id: TEST_UUID,
         name: "My Store",
         description: "cool stuff",
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
       mockService.findById.mockResolvedValue(store);
 
       const res = await request(app).get(`/stores/${TEST_UUID}`);
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(store);
+      expect(res.body).toEqual(JSON.parse(JSON.stringify(store)));
     });
 
     it("should return 404 when store not found", async () => {
@@ -99,13 +106,18 @@ describe("Store Routes", () => {
   describe("POST /stores", () => {
     it("should return 201 when store created", async () => {
       const dto = { name: "New Store", description: "we sell stuff" };
-      const created = { id: TEST_UUID, ...dto };
+      const created = {
+        id: TEST_UUID,
+        ...dto,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
       mockService.create.mockResolvedValue(created);
 
       const res = await request(app).post("/stores").send(dto);
 
       expect(res.status).toBe(201);
-      expect(res.body).toEqual(created);
+      expect(res.body).toEqual(JSON.parse(JSON.stringify(created)));
       expect(mockService.create).toHaveBeenCalledWith(TEST_UUID, dto);
     });
 
@@ -129,13 +141,18 @@ describe("Store Routes", () => {
   describe("PUT /stores/:storeId", () => {
     it("should return 200 when store updated", async () => {
       const dto = { name: "Updated Store", description: "updated desc" };
-      const updated = { id: TEST_UUID, ...dto };
+      const updated = {
+        id: TEST_UUID,
+        ...dto,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
       mockService.update.mockResolvedValue(updated);
 
       const res = await request(app).put(`/stores/${TEST_UUID}`).send(dto);
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(updated);
+      expect(res.body).toEqual(JSON.parse(JSON.stringify(updated)));
     });
 
     it("should return 404 when store not found", async () => {

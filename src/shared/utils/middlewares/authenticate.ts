@@ -4,7 +4,7 @@ import { env } from "../../../shared/config/env";
 import { HttpError } from "../../errors/http-error";
 import { logger } from "../../logger";
 
-type JwtUser = { sub: number; email: string; iat: number; exp: number };
+type JwtUser = { sub: string; email: string; iat: number; exp: number };
 
 export function authenticate() {
   return (req: Request, _res: Response, next: NextFunction) => {

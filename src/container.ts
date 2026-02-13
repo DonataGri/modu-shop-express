@@ -26,4 +26,4 @@ const authController = new AuthController(authService);
 export const authRoute = createAuthRoutes(authController);
 
 const storeController = new StoreController(storeService);
-export const storeRoute = createStoreRoutes(storeController);
+export const storeRoute = createStoreRoutes(storeService, storeController);

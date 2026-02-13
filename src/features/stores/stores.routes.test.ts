@@ -26,7 +26,7 @@ vi.mock("../../container", async () => {
   const controller = new StoreController(mockService);
 
   return {
-    storeRoute: createStoreRoutes(controller),
+    storeRoute: createStoreRoutes(mockService, controller),
     productRoutes: Router(),
     authRoute: Router(),
   };
@@ -37,6 +37,11 @@ vi.mock("../../shared/utils/middlewares/authenticate", () => ({
     req.user = { sub: TEST_UUID, email: "test@test.com", iat: 0, exp: 0 };
     next();
   },
+}));
+
+vi.mock("../../shared/utils/middlewares/authorize", () => ({
+  authorize: () => (_req: Request, _res: Response, next: NextFunction) =>
+    next(),
 }));
 
 describe("Store Routes", () => {

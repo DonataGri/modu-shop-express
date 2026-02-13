@@ -4,8 +4,13 @@ import { asyncHandler } from "../../shared/utils/async-handler";
 import { CreateStoreDto } from "./dto/create-store.dto";
 import { validate } from "../../shared/utils/middlewares/validate";
 import { UpdateStoreDto } from "./dto/update-store.dto";
+import { authorize } from "../../shared/utils/middlewares/authorize";
+import { StoreService } from "./stores.service";
 
-export function createStoreRoutes(controller: StoreController) {
+export function createStoreRoutes(
+  storeService: StoreService,
+  controller: StoreController,
+) {
   const router = Router();
 
   router.get(
@@ -28,7 +33,7 @@ export function createStoreRoutes(controller: StoreController) {
 
   router.put(
     "/:storeId",
-    validate(UpdateStoreDto),
+    [validate(UpdateStoreDto), authorize(storeService, ["OWNER"])],
     asyncHandler<{ storeId: string }>((req, res) =>
       controller.update(req, res),
     ),
@@ -36,6 +41,7 @@ export function createStoreRoutes(controller: StoreController) {
 
   router.delete(
     "/:storeId",
+    authorize(storeService, ["OWNER"]),
     asyncHandler<{ storeId: string }>((req, res) =>
       controller.delete(req, res),
     ),

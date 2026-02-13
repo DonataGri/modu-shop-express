@@ -26,8 +26,7 @@ vi.mock("../../container", async () => {
   const controller = new StoreController(mockService);
 
   return {
-    storeRoute: createStoreRoutes(mockService, controller),
-    productRoutes: Router(),
+    storeRoute: createStoreRoutes(mockService, controller, Router()),
     authRoute: Router(),
   };
 });
@@ -46,8 +45,8 @@ vi.mock("../../shared/utils/middlewares/authorize", () => ({
 
 describe("Store Routes", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.clearAllMocks();
   });
 
   describe("GET /stores", () => {

@@ -7,33 +7,43 @@ import { validate } from "../../shared/utils/middlewares/validate";
 import { UpdateProductDto } from "./dto/update-product.dto";
 
 export function createProductRoutes(controller: ProductController) {
-  const router = Router();
+  const router = Router({ mergeParams: true });
 
   router.get(
     "/",
-    asyncHandler((req, res) => controller.findAll(req, res)),
+    asyncHandler<{ storeId: string }>((req, res) =>
+      controller.findAll(req, res),
+    ),
   );
 
   router.get(
     "/:id",
-    asyncHandler<{ id: string }>((req, res) => controller.findById(req, res)),
+    asyncHandler<{ id: string; storeId: string }>((req, res) =>
+      controller.findById(req, res),
+    ),
   );
 
   router.post(
     "/",
     validate(CreateProductDto),
-    asyncHandler((req, res) => controller.create(req, res)),
+    asyncHandler<{ storeId: string }>((req, res) =>
+      controller.create(req, res),
+    ),
   );
 
   router.put(
     "/:id",
     validate(UpdateProductDto),
-    asyncHandler<{ id: string }>((req, res) => controller.update(req, res)),
+    asyncHandler<{ id: string; storeId: string }>((req, res) =>
+      controller.update(req, res),
+    ),
   );
 
   router.delete(
     "/:id",
-    asyncHandler<{ id: string }>((req, res) => controller.delete(req, res)),
+    asyncHandler<{ id: string; storeId: string }>((req, res) =>
+      controller.delete(req, res),
+    ),
   );
 
   return router;

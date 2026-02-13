@@ -22,6 +22,7 @@ describe("StoreService", () => {
   let service: StoreService;
 
   beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
     service = new StoreService(mockPrisma as unknown as PrismaClient);
     vi.clearAllMocks();
   });

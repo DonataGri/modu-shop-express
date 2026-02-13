@@ -6,7 +6,7 @@ import express, {
   type ErrorRequestHandler,
 } from "express";
 import morgan from "morgan";
-import { authRoute, productRoutes, storeRoute } from "./container";
+import { authRoute, storeRoute } from "./container";
 import { authenticate } from "./shared/utils/middlewares/authenticate";
 import { logger } from "./shared/logger";
 
@@ -15,7 +15,6 @@ const app = express();
 app.use(express.json());
 app.use(morgan("tiny"));
 
-app.use("/products", authenticate(), productRoutes);
 app.use("/auth", authRoute);
 app.use("/stores", authenticate(), storeRoute);
 

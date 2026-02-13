@@ -10,6 +10,7 @@ import { StoreService } from "./stores.service";
 export function createStoreRoutes(
   storeService: StoreService,
   controller: StoreController,
+  productRoutes: Router,
 ) {
   const router = Router();
 
@@ -45,6 +46,12 @@ export function createStoreRoutes(
     asyncHandler<{ storeId: string }>((req, res) =>
       controller.delete(req, res),
     ),
+  );
+
+  router.use(
+    "/:storeId/products",
+    authorize(storeService, ["OWNER", "STAFF"]),
+    productRoutes,
   );
 
   return router;

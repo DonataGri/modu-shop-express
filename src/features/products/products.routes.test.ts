@@ -4,8 +4,10 @@ import request from "supertest";
 import { HttpError } from "../../shared/errors/http-error";
 import app from "../../app";
 import type { ProductService } from "./products.service";
+import { StoreService } from "../stores/stores.service";
 
-const TEST_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
+const PRODUCT_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
+const STORE_UUID = "7ec0bd7f-11c0-43da-975e-2a8ad9ebae0c";
 
 const { mockService } = vi.hoisted(() => ({
   mockService: {
@@ -20,15 +22,21 @@ const { mockService } = vi.hoisted(() => ({
 vi.mock("../../container", async () => {
   const { ProductController } = await import("./products.controller");
   const { createProductRoutes } = await import("./products.routes");
+  const { createStoreRoutes } = await import("../stores/stores.routes");
+  const { StoreController } = await import("../stores/stores.controller");
   const { Router } = await import("express");
 
   const controller = new ProductController(mockService);
+  const productRoutes = createProductRoutes(controller);
+  const storeController = new StoreController({} as StoreService);
 
   return {
-    productService: mockService,
-    productRoutes: createProductRoutes(controller),
+    storeRoute: createStoreRoutes(
+      {} as StoreService,
+      storeController,
+      productRoutes,
+    ),
     authRoute: Router(),
-    storeRoute: Router(),
   };
 });
 
@@ -37,17 +45,23 @@ vi.mock("../../shared/utils/middlewares/authenticate", () => ({
     next(),
 }));
 
+vi.mock("../../shared/utils/middlewares/authorize", () => ({
+  authorize: () => (_req: Request, _res: Response, next: NextFunction) =>
+    next(),
+}));
+
 describe("Product Routes", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.clearAllMocks();
   });
 
-  describe("GET /products", () => {
+  describe("GET stores/:storeId/products", () => {
     it("should return 200 and list of products", async () => {
       const products = [
         {
-          id: TEST_UUID,
+          id: PRODUCT_UUID,
+          storeId: STORE_UUID,
           name: "Test Product",
           description: "",
           price: 9.99,
@@ -57,7 +71,7 @@ describe("Product Routes", () => {
       ];
       mockService.findAll.mockResolvedValue(products);
 
-      const res = await request(app).get("/products");
+      const res = await request(app).get(`/stores/${STORE_UUID}/products`);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual(JSON.parse(JSON.stringify(products)));
@@ -66,17 +80,18 @@ describe("Product Routes", () => {
     it("should return 200 and empty list if no products found", async () => {
       mockService.findAll.mockResolvedValue([]);
 
-      const res = await request(app).get("/products");
+      const res = await request(app).get(`/stores/${STORE_UUID}/products`);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual([]);
     });
   });
 
-  describe("GET /products/:id", () => {
+  describe("GET stores/:storeId/products/:id", () => {
     it("should return 200 with product when found", async () => {
       const product = {
-        id: TEST_UUID,
+        id: PRODUCT_UUID,
+        storeId: STORE_UUID,
         name: "Test Product",
         description: "",
         price: 9.99,
@@ -86,7 +101,7 @@ describe("Product Routes", () => {
 
       mockService.findById.mockResolvedValue(product);
 
-      const res = await request(app).get("/products/1");
+      const res = await request(app).get(`/stores/${STORE_UUID}/products/1`);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual(JSON.parse(JSON.stringify(product)));
@@ -96,13 +111,14 @@ describe("Product Routes", () => {
       mockService.findById.mockRejectedValue(
         new HttpError(404, "Product not found"),
       );
-
-      const res = await request(app).get("/products/UUID-999");
+      const res = await request(app).get(
+        `/stores/${STORE_UUID}/products/UUID-999`,
+      );
 
       expect(res.status).toBe(404);
     });
   });
-  describe("POST /products", () => {
+  describe("POST stores/:storeId/products", () => {
     it("should return 201 when product created", async () => {
       const dto = {
         name: "New Product",
@@ -110,36 +126,45 @@ describe("Product Routes", () => {
         description: "Nice T-shirt",
       };
       const createdProduct = {
-        id: TEST_UUID,
+        id: PRODUCT_UUID,
+        storeId: STORE_UUID,
         ...dto,
         updatedAt: new Date(),
         createdAt: new Date(),
       };
       mockService.create.mockResolvedValue(createdProduct);
 
-      const res = await request(app).post("/products").send(dto);
+      const res = await request(app)
+        .post(`/stores/${STORE_UUID}/products`)
+        .send(dto);
+      console.log(res.body);
       expect(res.status).toBe(201);
       expect(res.body).toEqual(JSON.parse(JSON.stringify(createdProduct)));
     });
 
     it("should return 400 when validation fails", async () => {
-      const res = await request(app).post("/products").send({ name: "" });
+      const res = await request(app)
+        .post(`/stores/${STORE_UUID}/products`)
+        .send({ name: "" });
 
       expect(res.status).toBe(400);
     });
 
     it("should return 400 when price is negatvie", async () => {
-      const res = await request(app).post("/products").send({ price: -9.99 });
+      const res = await request(app)
+        .post(`/stores/${STORE_UUID}/products`)
+        .send({ price: -9.99 });
 
       expect(res.status).toBe(400);
     });
   });
 
-  describe("PUT /products/:id", () => {
+  describe("PUT stores/:storeId/products/:id", () => {
     it("should return 200 when product updated", async () => {
       const dto = { name: "Updated Name", price: 9.99 };
       const updatedProduct = {
-        id: TEST_UUID,
+        id: PRODUCT_UUID,
+        storeId: STORE_UUID,
         ...dto,
         description: "Old description",
         updatedAt: new Date(),
@@ -147,7 +172,9 @@ describe("Product Routes", () => {
       };
       mockService.update.mockResolvedValue(updatedProduct);
 
-      const res = await request(app).put("/products/1").send(dto);
+      const res = await request(app)
+        .put(`/stores/${STORE_UUID}/products/${PRODUCT_UUID}`)
+        .send(dto);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual(JSON.parse(JSON.stringify(updatedProduct)));
@@ -159,7 +186,7 @@ describe("Product Routes", () => {
       );
 
       const res = await request(app)
-        .put("/products/999")
+        .put(`/stores/${STORE_UUID}/products/UUID-999`)
         .send({ name: "Updated" });
 
       expect(res.status).toBe(404);
@@ -170,7 +197,9 @@ describe("Product Routes", () => {
     it("should return 200 when product deleted", async () => {
       mockService.delete.mockResolvedValue(undefined);
 
-      const res = await request(app).delete("/products/1");
+      const res = await request(app).delete(
+        `/stores/${STORE_UUID}/products/${PRODUCT_UUID}`,
+      );
       expect(res.status).toBe(200);
     });
 
@@ -179,7 +208,9 @@ describe("Product Routes", () => {
         new HttpError(404, "Product not found"),
       );
 
-      const res = await request(app).delete("/products/999");
+      const res = await request(app).delete(
+        `/stores/${STORE_UUID}/products/UUID-999`,
+      );
 
       expect(res.status).toBe(404);
     });

@@ -15,12 +15,14 @@ import type { UpdateProductDto } from "./dto/update-product.dto";
 export class ProductService {
   constructor(private prisma: PrismaClient) {}
 
-  async findAll() {
-    return await this.prisma.product.findMany();
+  async findAll(storeId: string) {
+    return await this.prisma.product.findMany({ where: { storeId } });
   }
 
-  async findById(id: string) {
-    const product = await this.prisma.product.findUnique({ where: { id } });
+  async findById(id: string, storeId: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id, storeId },
+    });
 
     if (!product) {
       throw new HttpError(404, "Product not found");
@@ -29,18 +31,24 @@ export class ProductService {
     return product;
   }
 
-  async create(createProductDto: CreateProductDto) {
+  async create(storeId: string, createProductDto: CreateProductDto) {
     try {
-      return await this.prisma.product.create({ data: createProductDto });
+      return await this.prisma.product.create({
+        data: { ...createProductDto, storeId },
+      });
     } catch (err) {
       handlePrismaError(err, "Product");
     }
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(
+    id: string,
+    storeId: string,
+    updateProductDto: UpdateProductDto,
+  ) {
     try {
       return await this.prisma.product.update({
-        where: { id },
+        where: { id, storeId },
         data: updateProductDto,
       });
     } catch (err) {
@@ -48,9 +56,9 @@ export class ProductService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: string, storeId: string) {
     try {
-      return await this.prisma.product.delete({ where: { id } });
+      return await this.prisma.product.delete({ where: { id, storeId } });
     } catch (err) {
       handlePrismaError(err, "Product");
     }

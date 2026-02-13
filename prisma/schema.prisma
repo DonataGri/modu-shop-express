@@ -8,34 +8,46 @@ datasource db {
   provider = "postgresql"
 }
 
+// -----------------------------
+// Users and Stores
+// -----------------------------
+
 enum StoreRole {
   OWNER
   STAFF
+
+  @@map("store_role")
 }
 
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  userStores UserStore[]
+  storeUsers StoreUsers[]
+  orders     Order[]
+
+  @@map("users")
 }
 
 model Store {
   id          String   @id @default(uuid())
   name        String   @unique
-  description String   @unique
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
+  description String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  userStores UserStore[]
-  product    Product[]
+  userStores StoreUsers[]
+  products   Product[]
+  orders     Order[]
+  attributes Attribute[]
+
+  @@map("stores")
 }
 
-model UserStore {
-  id      String    @id @default(uuid())
+model StoreUsers {
   userId  String
   storeId String
   role    StoreRole
@@ -43,25 +55,118 @@ model UserStore {
   user  User  @relation(fields: [userId], references: [id])
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, storeId])
+  @@id([userId, storeId])
+  @@map("store_users")
 }
+
+// -----------------------------
+// Attributes
+// -----------------------------
+
+model Attribute {
+  id        String   @id @default(uuid())
+  storeId   String
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  store   Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  options AttributeOption[]
+
+  @@unique([storeId, name])
+  @@map("attributes")
+}
+
+model AttributeOption {
+  id          String   @id @default(uuid())
+  attributeId String
+  value       String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  attribute Attribute            @relation(fields: [attributeId], references: [id])
+  skuOption SkuAttributeOption[]
+
+  @@unique([attributeId, value])
+  @@map("attribute_options")
+}
+
+// -----------------------------
+// Products and SKUs
+// -----------------------------
 
 model Product {
   id          String   @id @default(uuid())
   storeId     String
   name        String
   description String?
-  price       Float
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
+  price       Decimal
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  skus  Sku[]
+
+  @@map("products")
 }
 
-model Variant {
-  id        String @id @default(uuid())
+model Sku {
+  id        String   @id @default(uuid())
   productId String
-  sku       String @unique
-  stock     Int    @default(0)
-  price     Float?
+  code      String   @unique
+  quantity  Int      @default(0)
+  price     Decimal?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  skuAttributeOptions SkuAttributeOption[]
+  orderItems          OrderItem[]
+  product             Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("skus")
+}
+
+model SkuAttributeOption {
+  skuId             String
+  attributeOptionId String
+
+  sku             Sku             @relation(fields: [skuId], references: [id])
+  attributeOption AttributeOption @relation(fields: [attributeOptionId], references: [id])
+
+  @@id([skuId, attributeOptionId])
+  @@map("sku_attribute_option")
+}
+
+// -----------------------------
+// Orders
+// -----------------------------
+
+model Order {
+  id         String   @id @default(uuid())
+  userId     String
+  storeId    String
+  totalPrice Decimal
+  status     String   @default("pending")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id       String  @id @default(uuid())
+  orderId  String
+  skuId    String
+  quantity Int     @default(1)
+  price    Decimal
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sku   Sku   @relation(fields: [skuId], references: [id])
+
+  @@unique([orderId, skuId])
+  @@map("order_item")
 }

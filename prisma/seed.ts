@@ -50,7 +50,7 @@ async function seed() {
     data: {
       name: "TechZone",
       description: "Electronics and gadgets for everyday life",
-      userStores: {
+      storeUsers: {
         create: [
           { userId: alice.id, role: "OWNER" },
           { userId: bob.id, role: "STAFF" },
@@ -63,7 +63,7 @@ async function seed() {
     data: {
       name: "Urban Threads",
       description: "Modern streetwear and casual clothing",
-      userStores: {
+      storeUsers: {
         create: [
           { userId: bob.id, role: "OWNER" },
           { userId: charlie.id, role: "STAFF" },

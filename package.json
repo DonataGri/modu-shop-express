@@ -10,6 +10,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
+    "seed": "tsx prisma/seed.ts",
     "lint:fix": "eslint . --fix",
     "prepare": "husky"
   },

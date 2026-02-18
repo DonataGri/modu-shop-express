@@ -39,7 +39,7 @@ model Store {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  userStores StoreUsers[]
+  storeUsers StoreUsers[]
   products   Product[]
   orders     Order[]
   attributes Attribute[]

@@ -13,7 +13,7 @@ const mockPrisma = {
     update: vi.fn(),
     delete: vi.fn(),
   },
-  userStore: {
+  storeUsers: {
     findUnique: vi.fn(),
   },
 };
@@ -42,7 +42,7 @@ describe("StoreService", () => {
 
       expect(result).toEqual(stores);
       expect(mockPrisma.store.findMany).toHaveBeenCalledWith({
-        where: { userStores: { some: { userId: TEST_UUID } } },
+        where: { storeUsers: { some: { userId: TEST_UUID } } },
       });
     });
   });
@@ -76,7 +76,7 @@ describe("StoreService", () => {
 
   describe("getUserRole", () => {
     it("should return role when user is a store member", async () => {
-      mockPrisma.userStore.findUnique.mockResolvedValue({
+      mockPrisma.storeUsers.findUnique.mockResolvedValue({
         userId: TEST_UUID,
         storeId: TEST_UUID,
         role: "OWNER",
@@ -85,13 +85,13 @@ describe("StoreService", () => {
       const result = await service.getUserRole(TEST_UUID, TEST_UUID);
 
       expect(result).toBe("OWNER");
-      expect(mockPrisma.userStore.findUnique).toHaveBeenCalledWith({
+      expect(mockPrisma.storeUsers.findUnique).toHaveBeenCalledWith({
         where: { userId_storeId: { userId: TEST_UUID, storeId: TEST_UUID } },
       });
     });
 
     it("should return null when user is not a store member", async () => {
-      mockPrisma.userStore.findUnique.mockResolvedValue(null);
+      mockPrisma.storeUsers.findUnique.mockResolvedValue(null);
 
       const result = await service.getUserRole(TEST_UUID, TEST_UUID);
 
@@ -111,7 +111,7 @@ describe("StoreService", () => {
       expect(mockPrisma.store.create).toHaveBeenCalledWith({
         data: {
           ...storeDto,
-          userStores: { create: { userId: TEST_UUID, role: "OWNER" } },
+          storeUsers: { create: { userId: TEST_UUID, role: "OWNER" } },
         },
       });
     });

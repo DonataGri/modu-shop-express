@@ -21,12 +21,12 @@ export class StoreService {
 
   async findAllByUser(userId: string) {
     return await this.prisma.store.findMany({
-      where: { userStores: { some: { userId } } },
+      where: { storeUsers: { some: { userId } } },
     });
   }
 
   async getUserRole(storeId: string, userId: string) {
-    const storeMember = await this.prisma.userStore.findUnique({
+    const storeMember = await this.prisma.storeUsers.findUnique({
       where: { userId_storeId: { userId, storeId } },
     });
     return storeMember?.role ?? null;
@@ -37,7 +37,7 @@ export class StoreService {
       return await this.prisma.store.create({
         data: {
           ...createStoreDto,
-          userStores: {
+          storeUsers: {
             create: { userId, role: "OWNER" },
           },
         },

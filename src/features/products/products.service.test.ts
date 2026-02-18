@@ -37,7 +37,7 @@ describe("ProductService", () => {
       expect(result).toEqual(products);
     });
 
-    it("should return emptu array when no products are found", async () => {
+    it("should return empty array when no products are found", async () => {
       mockPrisma.product.findMany.mockResolvedValue([]);
 
       const result = await service.findAll(STORE_UUID);

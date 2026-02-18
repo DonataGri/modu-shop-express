@@ -4,7 +4,7 @@ import { AuthService } from "./auth.service";
 import app from "../../app";
 import { HttpError } from "../../shared/errors/http-error";
 
-const TEST_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
+const USER_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
 
 const { mockService } = vi.hoisted(() => ({
   mockService: {
@@ -37,7 +37,7 @@ describe("Auth Routes", () => {
     it("should return 201 and return created user", async () => {
       const credentials = { email: "super@mail.com", password: "superpass" };
       const createdUser = {
-        id: TEST_UUID,
+        id: USER_UUID,
         email: "super@mail.com",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -62,7 +62,7 @@ describe("Auth Routes", () => {
     it("should return 200 with token", async () => {
       mockService.login.mockResolvedValue({
         user: {
-          id: TEST_UUID,
+          id: USER_UUID,
           email: "super@email.com",
           createdAt: new Date(),
           updatedAt: new Date(),

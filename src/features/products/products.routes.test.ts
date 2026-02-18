@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { describe, it, expect, vi, beforeEach, Mocked } from "vitest";
 import request from "supertest";
+import { Prisma } from "../../../generated/prisma/client";
 import { HttpError } from "../../shared/errors/http-error";
 import app from "../../app";
 import type { ProductService } from "./products.service";
@@ -21,9 +22,10 @@ const { mockService } = vi.hoisted(() => ({
 
 vi.mock("../../container", async () => {
   const { ProductController } = await import("./products.controller");
+  const { StoreController } = await import("../stores/stores.controller");
   const { createProductRoutes } = await import("./products.routes");
   const { createStoreRoutes } = await import("../stores/stores.routes");
-  const { StoreController } = await import("../stores/stores.controller");
+
   const { Router } = await import("express");
 
   const controller = new ProductController(mockService);
@@ -34,6 +36,7 @@ vi.mock("../../container", async () => {
     storeRoute: createStoreRoutes(
       {} as StoreService,
       storeController,
+      Router(),
       productRoutes,
     ),
     authRoute: Router(),
@@ -64,7 +67,7 @@ describe("Product Routes", () => {
           storeId: STORE_UUID,
           name: "Test Product",
           description: "",
-          price: 9.99,
+          price: new Prisma.Decimal(9.99),
           updatedAt: new Date(),
           createdAt: new Date(),
         },
@@ -94,7 +97,7 @@ describe("Product Routes", () => {
         storeId: STORE_UUID,
         name: "Test Product",
         description: "",
-        price: 9.99,
+        price: new Prisma.Decimal(9.99),
         updatedAt: new Date(),
         createdAt: new Date(),
       };
@@ -129,6 +132,7 @@ describe("Product Routes", () => {
         id: PRODUCT_UUID,
         storeId: STORE_UUID,
         ...dto,
+        price: new Prisma.Decimal(dto.price),
         updatedAt: new Date(),
         createdAt: new Date(),
       };
@@ -166,6 +170,7 @@ describe("Product Routes", () => {
         id: PRODUCT_UUID,
         storeId: STORE_UUID,
         ...dto,
+        price: new Prisma.Decimal(dto.price),
         description: "Old description",
         updatedAt: new Date(),
         createdAt: new Date(),

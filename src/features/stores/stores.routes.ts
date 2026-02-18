@@ -10,6 +10,7 @@ import { StoreService } from "./stores.service";
 export function createStoreRoutes(
   storeService: StoreService,
   controller: StoreController,
+  attributesRoutes: Router,
   productRoutes: Router,
 ) {
   const router = Router();
@@ -52,6 +53,12 @@ export function createStoreRoutes(
     "/:storeId/products",
     authorize(storeService, ["OWNER", "STAFF"]),
     productRoutes,
+  );
+
+  router.use(
+    "/:storeId/attributes",
+    authorize(storeService, ["OWNER", "STAFF"]),
+    attributesRoutes,
   );
 
   return router;

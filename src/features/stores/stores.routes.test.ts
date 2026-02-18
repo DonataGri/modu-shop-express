@@ -26,7 +26,7 @@ vi.mock("../../container", async () => {
   const controller = new StoreController(mockService);
 
   return {
-    storeRoute: createStoreRoutes(mockService, controller, Router()),
+    storeRoute: createStoreRoutes(mockService, controller, Router(), Router()),
     authRoute: Router(),
   };
 });

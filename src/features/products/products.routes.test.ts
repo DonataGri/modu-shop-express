@@ -141,7 +141,6 @@ describe("Product Routes", () => {
       const res = await request(app)
         .post(`/stores/${STORE_UUID}/products`)
         .send(dto);
-      console.log(res.body);
       expect(res.status).toBe(201);
       expect(res.body).toEqual(JSON.parse(JSON.stringify(createdProduct)));
     });

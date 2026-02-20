@@ -12,7 +12,6 @@ export class AttributeController {
   }
 
   async create(req: Request<{ storeId: string }>, res: Response) {
-    console.log(req.params, " REQUEST");
     const { storeId } = req.params;
     const attribute = await this.attributeService.create(storeId, req.body);
     res.status(201).json(attribute);
@@ -20,7 +19,6 @@ export class AttributeController {
 
   async update(req: Request<{ attributeId: string }>, res: Response) {
     const { attributeId } = req.params;
-    console.log(req.params, "PARAMS");
     const attribute = await this.attributeService.update(attributeId, req.body);
     res.json(attribute);
   }

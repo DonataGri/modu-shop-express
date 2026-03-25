@@ -1,6 +1,10 @@
 import "dotenv/config";
 
-const REQUIRED_VARS = ["JWT_SECRET", "DATABASE_URL"] as const;
+const REQUIRED_VARS = [
+  "JWT_SECRET",
+  "DATABASE_URL",
+  "APP_DATABASE_URL",
+] as const;
 
 const missing = REQUIRED_VARS.filter((v) => !process.env[v]);
 
@@ -13,4 +17,5 @@ export const env = {
   PORT: process.env.PORT || "3000",
   JWT_SECRET: process.env.JWT_SECRET!,
   DATABASE_URL: process.env.DATABASE_URL!,
+  APP_DATABASE_URL: process.env.APP_DATABASE_URL!,
 };

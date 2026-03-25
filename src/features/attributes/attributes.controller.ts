@@ -5,7 +5,6 @@ export class AttributeController {
   constructor(private attributeService: AttributeService) {}
 
   async findAll(req: Request<{ storeId: string }>, res: Response) {
-    console.log(req.params, " REQUEST");
     const { storeId } = req.params;
     const attributes = await this.attributeService.findAll(storeId);
     res.json(attributes);

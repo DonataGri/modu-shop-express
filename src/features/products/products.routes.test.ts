@@ -204,7 +204,7 @@ describe("Product Routes", () => {
       const res = await request(app).delete(
         `/stores/${STORE_UUID}/products/${PRODUCT_UUID}`,
       );
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
     });
 
     it("should return 404 when product not found", async () => {

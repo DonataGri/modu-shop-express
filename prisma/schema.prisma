@@ -48,8 +48,8 @@ model Store {
 }
 
 model StoreUsers {
-  userId  String
-  storeId String
+  userId  String    @map("user_id")
+  storeId String    @map("store_id")
   role    StoreRole
 
   user  User  @relation(fields: [userId], references: [id])
@@ -65,7 +65,7 @@ model StoreUsers {
 
 model Attribute {
   id        String   @id @default(uuid())
-  storeId   String
+  storeId   String   @map("store_id")
   name      String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -79,7 +79,7 @@ model Attribute {
 
 model AttributeOption {
   id          String   @id @default(uuid())
-  attributeId String
+  attributeId String   @map("attribute_id")
   value       String
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -97,7 +97,7 @@ model AttributeOption {
 
 model Product {
   id          String   @id @default(uuid())
-  storeId     String
+  storeId     String   @map("store_id")
   name        String
   description String?
   price       Decimal
@@ -112,7 +112,7 @@ model Product {
 
 model Sku {
   id        String   @id @default(uuid())
-  productId String
+  productId String   @map("product_id")
   code      String   @unique
   quantity  Int      @default(0)
   price     Decimal?
@@ -127,8 +127,8 @@ model Sku {
 }
 
 model SkuAttributeOption {
-  skuId             String
-  attributeOptionId String
+  skuId             String @map("sku_id")
+  attributeOptionId String @map("attribute_option_id")
 
   sku             Sku             @relation(fields: [skuId], references: [id])
   attributeOption AttributeOption @relation(fields: [attributeOptionId], references: [id])
@@ -143,9 +143,9 @@ model SkuAttributeOption {
 
 model Order {
   id         String   @id @default(uuid())
-  userId     String
-  storeId    String
-  totalPrice Decimal
+  userId     String   @map("user_id")
+  storeId    String   @map("store_id")
+  totalPrice Decimal  @map("total_price")
   status     String   @default("pending")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
@@ -159,8 +159,8 @@ model Order {
 
 model OrderItem {
   id       String  @id @default(uuid())
-  orderId  String
-  skuId    String
+  orderId  String  @map("order_id")
+  skuId    String  @map("sku_id")
   quantity Int     @default(1)
   price    Decimal
 

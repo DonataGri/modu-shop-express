@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ProductService } from "./products.service";
 import { HttpError } from "../../shared/errors/http-error";
 import { Prisma, PrismaClient } from "../../../generated/prisma/client";
+import { storeContext } from "../../shared/utils/middlewares/scopedStore";
 
 const PRODUCT_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
 const STORE_UUID = "7ec0bd7f-11c0-43da-975e-2a8ad9ebae0c";
@@ -21,7 +22,8 @@ describe("ProductService", () => {
 
   beforeEach(() => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    service = new ProductService(mockPrisma as unknown as PrismaClient);
+    vi.spyOn(storeContext, "getStore").mockReturnValue(mockPrisma as unknown as PrismaClient);
+    service = new ProductService();
     vi.clearAllMocks();
   });
 

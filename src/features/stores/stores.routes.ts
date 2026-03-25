@@ -6,6 +6,7 @@ import { validate } from "../../shared/utils/middlewares/validate";
 import { UpdateStoreDto } from "./dto/update-store.dto";
 import { authorize } from "../../shared/utils/middlewares/authorize";
 import { StoreService } from "./stores.service";
+import { withTenant } from "../../shared/utils/middlewares/scopedStore";
 
 export function createStoreRoutes(
   storeService: StoreService,
@@ -52,12 +53,14 @@ export function createStoreRoutes(
   router.use(
     "/:storeId/products",
     authorize(storeService, ["OWNER", "STAFF"]),
+    withTenant,
     productRoutes,
   );
 
   router.use(
     "/:storeId/attributes",
     authorize(storeService, ["OWNER", "STAFF"]),
+    withTenant,
     attributesRoutes,
   );
 

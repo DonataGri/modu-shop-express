@@ -73,6 +73,7 @@ async function seed() {
   });
 
   console.log("Seeding attributes...");
+  await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${clothingStore.id}, FALSE)`;
   const color = await prisma.attribute.create({
     data: {
       storeId: clothingStore.id,
@@ -105,6 +106,7 @@ async function seed() {
     include: { options: true },
   });
 
+  await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${techStore.id}, FALSE)`;
   const storage = await prisma.attribute.create({
     data: {
       storeId: techStore.id,
@@ -130,6 +132,7 @@ async function seed() {
   console.log("Seeding products & SKUs...");
 
   // --- TechZone products ---
+  await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${techStore.id}, FALSE)`;
   const laptop = await prisma.product.create({
     data: {
       storeId: techStore.id,
@@ -220,6 +223,7 @@ async function seed() {
   });
 
   // --- Urban Threads products ---
+  await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${clothingStore.id}, FALSE)`;
   const hoodie = await prisma.product.create({
     data: {
       storeId: clothingStore.id,

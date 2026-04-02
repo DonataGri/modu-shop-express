@@ -1,0 +1,303 @@
+tags:
+  - name: Attributes
+    description: Store attribute and option management
+
+paths:
+  /stores/{storeId}/attributes:
+    get:
+      tags: [Attributes]
+      summary: Get all attributes for a store
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/storeId"
+      responses:
+        "200":
+          description: List of attributes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attribute"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+    post:
+      tags: [Attributes]
+      summary: Create a new attribute
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/storeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttributeDto"
+      responses:
+        "201":
+          description: Attribute created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attribute"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /stores/{storeId}/attributes/{attributeId}:
+    put:
+      tags: [Attributes]
+      summary: Update an attribute
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/storeId"
+        - $ref: "#/components/parameters/attributeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttributeDto"
+      responses:
+        "200":
+          description: Attribute updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attribute"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Attributes]
+      summary: Delete an attribute
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/storeId"
+        - $ref: "#/components/parameters/attributeId"
+      responses:
+        "204":
+          description: Attribute deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /stores/{storeId}/attributes/{attributeId}/options:
+    post:
+      tags: [Attributes]
+      summary: Add an option to an attribute
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/storeId"
+        - $ref: "#/components/parameters/attributeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttributeOptionDto"
+      responses:
+        "201":
+          description: Option created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttributeOption"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /stores/{storeId}/attributes/{attributeId}/options/{optionId}:
+    put:
+      tags: [Attributes]
+      summary: Update an attribute option
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/storeId"
+        - $ref: "#/components/parameters/attributeId"
+        - $ref: "#/components/parameters/optionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttributeOptionDto"
+      responses:
+        "200":
+          description: Option updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttributeOption"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    delete:
+      tags: [Attributes]
+      summary: Delete an attribute option
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/storeId"
+        - $ref: "#/components/parameters/attributeId"
+        - $ref: "#/components/parameters/optionId"
+      responses:
+        "204":
+          description: Option deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  parameters:
+    storeId:
+      name: storeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    attributeId:
+      name: attributeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    optionId:
+      name: optionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    Attribute:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        storeId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttributeOption"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AttributeOption:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        attributeId:
+          type: string
+          format: uuid
+        value:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AttributeDto:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+
+    AttributeOptionDto:
+      type: object
+      required: [value]
+      properties:
+        value:
+          type: string
+          maxLength: 100
+
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    Unauthorized:
+      description: Missing or invalid JWT
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string

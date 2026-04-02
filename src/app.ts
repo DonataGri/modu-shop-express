@@ -6,7 +6,9 @@ import express, {
   type ErrorRequestHandler,
 } from "express";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
 import { authRoute, storeRoute } from "./container";
+import { swaggerSpec } from "./shared/config/swagger";
 import { authenticate } from "./shared/utils/middlewares/authenticate";
 import { logger } from "./shared/logger";
 
@@ -17,6 +19,7 @@ app.use(morgan("tiny"));
 
 app.use("/auth", authRoute);
 app.use("/stores", authenticate(), storeRoute);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (_: Request, res: Response) => {
   res.json({ message: "Hello World!" });

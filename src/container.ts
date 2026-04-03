@@ -17,20 +17,19 @@ const authService = new AuthService(prisma);
 const storeService = new StoreService(prisma);
 const attributeService = new AttributeService(prisma);
 
-const productController = new ProductController(productService);
-const productRoutes = createProductRoutes(productController);
-
 const authController = new AuthController(authService);
 export const authRoute = createAuthRoutes(authController);
 
 const attributeController = new AttributeController(attributeService);
 const attributeRoutes = createAttributeRoutes(attributeController);
 
+const productController = new ProductController(productService);
+const productRoutes = createProductRoutes(productController, attributeRoutes);
+
 const storeController = new StoreController(storeService);
 
 export const storeRoute = createStoreRoutes(
   storeService,
   storeController,
-  attributeRoutes,
   productRoutes,
 );

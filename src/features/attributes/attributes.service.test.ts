@@ -4,7 +4,7 @@ import { Prisma, PrismaClient } from "../../../generated/prisma/client";
 import { HttpError } from "../../shared/errors/http-error";
 
 const ATTRIBUTE_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
-const STORE_UUID = "7ec0bd7f-11c0-43da-975e-2a8ad9ebae0c";
+const PRODUCT_UUID = "7ec0bd7f-11c0-43da-975e-2a8ad9ebae0c";
 
 const OPTION_UUID = "8ec0bd7f-11c0-43da-975e-2a8ad9ebae0d";
 
@@ -38,7 +38,7 @@ describe("AttributeSerivce", () => {
         {
           id: ATTRIBUTE_UUID,
           name: "Color",
-          storeId: STORE_UUID,
+          productId: PRODUCT_UUID,
           options: [
             { id: "1111_aaaa_2222_bbbb", value: "Black" },
             { id: "2222_bbbb_3333_cccc", value: "White" },
@@ -48,11 +48,11 @@ describe("AttributeSerivce", () => {
 
       mockPrisma.attribute.findMany.mockResolvedValue(attributes);
 
-      const result = await service.findAll(STORE_UUID);
+      const result = await service.findAll(PRODUCT_UUID);
 
       expect(result).toEqual(attributes);
       expect(mockPrisma.attribute.findMany).toHaveBeenCalledWith({
-        where: { storeId: STORE_UUID },
+        where: { productId: PRODUCT_UUID },
         include: { options: true },
       });
     });
@@ -60,7 +60,7 @@ describe("AttributeSerivce", () => {
     it("should return empty array when no attributes are found", async () => {
       mockPrisma.attribute.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll(STORE_UUID);
+      const result = await service.findAll(PRODUCT_UUID);
 
       expect(result).toEqual([]);
     });
@@ -73,13 +73,13 @@ describe("AttributeSerivce", () => {
       };
       const created = {
         id: ATTRIBUTE_UUID,
-        storeId: STORE_UUID,
+        productId: PRODUCT_UUID,
         ...attributeDto,
       };
 
       mockPrisma.attribute.create.mockResolvedValue(created);
 
-      const result = await service.create(STORE_UUID, attributeDto);
+      const result = await service.create(PRODUCT_UUID, attributeDto);
       expect(result).toEqual(created);
     });
   });
@@ -127,10 +127,10 @@ describe("AttributeSerivce", () => {
     it("should delete attribute by id", async () => {
       mockPrisma.attribute.delete.mockResolvedValue(undefined);
 
-      await service.delete(ATTRIBUTE_UUID, STORE_UUID);
+      await service.delete(ATTRIBUTE_UUID, PRODUCT_UUID);
 
       expect(mockPrisma.attribute.delete).toHaveBeenCalledWith({
-        where: { id: ATTRIBUTE_UUID, storeId: STORE_UUID },
+        where: { id: ATTRIBUTE_UUID, productId: PRODUCT_UUID },
       });
     });
 
@@ -141,7 +141,7 @@ describe("AttributeSerivce", () => {
       );
       mockPrisma.attribute.delete.mockRejectedValue(prismaError);
 
-      await expect(service.delete("UUID-999", STORE_UUID)).rejects.toThrow(
+      await expect(service.delete("UUID-999", PRODUCT_UUID)).rejects.toThrow(
         HttpError,
       );
     });

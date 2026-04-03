@@ -6,6 +6,7 @@ import { HttpError } from "../../shared/errors/http-error";
 import app from "../../app";
 import type { ProductService } from "./products.service";
 import { StoreService } from "../stores/stores.service";
+import { AttributeService } from "../attributes/attributes.service";
 
 const PRODUCT_UUID = "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b";
 const STORE_UUID = "7ec0bd7f-11c0-43da-975e-2a8ad9ebae0c";
@@ -21,6 +22,10 @@ const { mockService } = vi.hoisted(() => ({
 }));
 
 vi.mock("../../container", async () => {
+  const { AttributeController } =
+    await import("../attributes/attributes.controller");
+  const { createAttributeRoutes } =
+    await import("../attributes/attributes.routes");
   const { ProductController } = await import("./products.controller");
   const { StoreController } = await import("../stores/stores.controller");
   const { createProductRoutes } = await import("./products.routes");
@@ -29,14 +34,16 @@ vi.mock("../../container", async () => {
   const { Router } = await import("express");
 
   const controller = new ProductController(mockService);
-  const productRoutes = createProductRoutes(controller);
+  const attributeController = new AttributeController({} as AttributeService);
+  const attributeRoute = createAttributeRoutes(attributeController);
+  const productRoutes = createProductRoutes(controller, attributeRoute);
+
   const storeController = new StoreController({} as StoreService);
 
   return {
     storeRoute: createStoreRoutes(
       {} as StoreService,
       storeController,
-      Router(),
       productRoutes,
     ),
     authRoute: Router(),

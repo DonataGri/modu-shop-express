@@ -42,7 +42,6 @@ model Store {
   storeUsers StoreUsers[]
   products   Product[]
   orders     Order[]
-  attributes Attribute[]
 
   @@map("stores")
 }
@@ -65,15 +64,15 @@ model StoreUsers {
 
 model Attribute {
   id        String   @id @default(uuid())
-  storeId   String   @map("store_id")
+  productId String   @map("product_id")
   name      String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  store   Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  product Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
   options AttributeOption[]
 
-  @@unique([storeId, name])
+  @@unique([productId, name])
   @@map("attributes")
 }
 
@@ -104,8 +103,9 @@ model Product {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  skus  Sku[]
+  store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  skus       Sku[]
+  attributes Attribute[]
 
   @@map("products")
 }

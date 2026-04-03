@@ -12,7 +12,7 @@ export function createAttributeRoutes(controller: AttributeController) {
 
   router.get(
     "/",
-    asyncHandler<{ storeId: string }>((req, res) =>
+    asyncHandler<{ productId: string }>((req, res) =>
       controller.findAll(req, res),
     ),
   );
@@ -20,7 +20,7 @@ export function createAttributeRoutes(controller: AttributeController) {
   router.post(
     "/",
     validate(CreateAttributeDto),
-    asyncHandler<{ storeId: string }>((req, res) =>
+    asyncHandler<{ productId: string }>((req, res) =>
       controller.create(req, res),
     ),
   );
@@ -35,7 +35,7 @@ export function createAttributeRoutes(controller: AttributeController) {
 
   router.delete(
     "/:attributeId",
-    asyncHandler<{ attributeId: string; storeId: string }>((req, res) =>
+    asyncHandler<{ attributeId: string; productId: string }>((req, res) =>
       controller.delete(req, res),
     ),
   );

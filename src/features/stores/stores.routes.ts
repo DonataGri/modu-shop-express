@@ -11,7 +11,6 @@ import { withTenant } from "../../shared/utils/middlewares/scopedStore";
 export function createStoreRoutes(
   storeService: StoreService,
   controller: StoreController,
-  attributesRoutes: Router,
   productRoutes: Router,
 ) {
   const router = Router();
@@ -55,13 +54,6 @@ export function createStoreRoutes(
     authorize(storeService, ["OWNER", "STAFF"]),
     withTenant,
     productRoutes,
-  );
-
-  router.use(
-    "/:storeId/attributes",
-    authorize(storeService, ["OWNER", "STAFF"]),
-    withTenant,
-    attributesRoutes,
   );
 
   return router;

@@ -8,10 +8,10 @@ import { UpdateAttributeDto } from "./dto/update-attribute.dto";
 export class AttributeService {
   constructor(private prisma: PrismaClient) {}
 
-  async findAll(storeId: string) {
+  async findAll(productId: string) {
     return await this.prisma.attribute.findMany({
       where: {
-        storeId,
+        productId,
       },
       include: {
         options: true,
@@ -19,10 +19,10 @@ export class AttributeService {
     });
   }
 
-  async create(storeId: string, createAttributeDto: CreateAttributeDto) {
+  async create(productId: string, createAttributeDto: CreateAttributeDto) {
     try {
       return await this.prisma.attribute.create({
-        data: { ...createAttributeDto, storeId },
+        data: { ...createAttributeDto, productId },
       });
     } catch (err) {
       handlePrismaError(err, "Attribute");
@@ -40,9 +40,9 @@ export class AttributeService {
     }
   }
 
-  async delete(id: string, storeId: string) {
+  async delete(id: string, productId: string) {
     try {
-      return await this.prisma.attribute.delete({ where: { id, storeId } });
+      return await this.prisma.attribute.delete({ where: { id, productId } });
     } catch (err) {
       handlePrismaError(err, "Attribute");
     }

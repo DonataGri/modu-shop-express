@@ -6,7 +6,10 @@ import { CreateProductDto } from "./dto/create-product.dto";
 import { validate } from "../../shared/utils/middlewares/validate";
 import { UpdateProductDto } from "./dto/update-product.dto";
 
-export function createProductRoutes(controller: ProductController) {
+export function createProductRoutes(
+  controller: ProductController,
+  attributesRoutes: Router,
+) {
   const router = Router({ mergeParams: true });
 
   router.get(
@@ -45,6 +48,8 @@ export function createProductRoutes(controller: ProductController) {
       controller.delete(req, res),
     ),
   );
+
+  router.use("/:id/attributes", attributesRoutes);
 
   return router;
 }

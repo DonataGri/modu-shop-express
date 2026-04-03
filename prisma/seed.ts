@@ -25,24 +25,15 @@ async function seed() {
   const passwordHash = await bcrypt.hash("password123", 10);
 
   const alice = await prisma.user.create({
-    data: {
-      email: "alice@example.com",
-      passwordHash,
-    },
+    data: { email: "alice@example.com", passwordHash },
   });
 
   const bob = await prisma.user.create({
-    data: {
-      email: "bob@example.com",
-      passwordHash,
-    },
+    data: { email: "bob@example.com", passwordHash },
   });
 
   const charlie = await prisma.user.create({
-    data: {
-      email: "charlie@example.com",
-      passwordHash,
-    },
+    data: { email: "charlie@example.com", passwordHash },
   });
 
   console.log("Seeding stores...");
@@ -72,67 +63,11 @@ async function seed() {
     },
   });
 
-  console.log("Seeding attributes...");
-  await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${clothingStore.id}, FALSE)`;
-  const color = await prisma.attribute.create({
-    data: {
-      storeId: clothingStore.id,
-      name: "Color",
-      options: {
-        create: [
-          { value: "Black" },
-          { value: "White" },
-          { value: "Navy" },
-          { value: "Red" },
-        ],
-      },
-    },
-    include: { options: true },
-  });
-
-  const size = await prisma.attribute.create({
-    data: {
-      storeId: clothingStore.id,
-      name: "Size",
-      options: {
-        create: [
-          { value: "S" },
-          { value: "M" },
-          { value: "L" },
-          { value: "XL" },
-        ],
-      },
-    },
-    include: { options: true },
-  });
-
-  await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${techStore.id}, FALSE)`;
-  const storage = await prisma.attribute.create({
-    data: {
-      storeId: techStore.id,
-      name: "Storage",
-      options: {
-        create: [{ value: "128GB" }, { value: "256GB" }, { value: "512GB" }],
-      },
-    },
-    include: { options: true },
-  });
-
-  const techColor = await prisma.attribute.create({
-    data: {
-      storeId: techStore.id,
-      name: "Color",
-      options: {
-        create: [{ value: "Space Gray" }, { value: "Silver" }],
-      },
-    },
-    include: { options: true },
-  });
-
   console.log("Seeding products & SKUs...");
 
   // --- TechZone products ---
   await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${techStore.id}, FALSE)`;
+
   const laptop = await prisma.product.create({
     data: {
       storeId: techStore.id,
@@ -140,6 +75,28 @@ async function seed() {
       description: "15-inch laptop with Ryzen 7 processor",
       price: 999.99,
     },
+  });
+
+  const laptopStorage = await prisma.attribute.create({
+    data: {
+      productId: laptop.id,
+      name: "Storage",
+      options: {
+        create: [{ value: "256GB" }, { value: "512GB" }],
+      },
+    },
+    include: { options: true },
+  });
+
+  const laptopColor = await prisma.attribute.create({
+    data: {
+      productId: laptop.id,
+      name: "Color",
+      options: {
+        create: [{ value: "Space Gray" }, { value: "Silver" }],
+      },
+    },
+    include: { options: true },
   });
 
   await prisma.sku.create({
@@ -150,15 +107,8 @@ async function seed() {
       quantity: 25,
       skuAttributeOptions: {
         create: [
-          {
-            attributeOptionId: storage.options.find((o) => o.value === "256GB")!
-              .id,
-          },
-          {
-            attributeOptionId: techColor.options.find(
-              (o) => o.value === "Space Gray",
-            )!.id,
-          },
+          { attributeOptionId: laptopStorage.options.find((o) => o.value === "256GB")!.id },
+          { attributeOptionId: laptopColor.options.find((o) => o.value === "Space Gray")!.id },
         ],
       },
     },
@@ -172,15 +122,8 @@ async function seed() {
       quantity: 15,
       skuAttributeOptions: {
         create: [
-          {
-            attributeOptionId: storage.options.find((o) => o.value === "512GB")!
-              .id,
-          },
-          {
-            attributeOptionId: techColor.options.find(
-              (o) => o.value === "Silver",
-            )!.id,
-          },
+          { attributeOptionId: laptopStorage.options.find((o) => o.value === "512GB")!.id },
+          { attributeOptionId: laptopColor.options.find((o) => o.value === "Silver")!.id },
         ],
       },
     },
@@ -224,6 +167,7 @@ async function seed() {
 
   // --- Urban Threads products ---
   await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${clothingStore.id}, FALSE)`;
+
   const hoodie = await prisma.product.create({
     data: {
       storeId: clothingStore.id,
@@ -233,8 +177,30 @@ async function seed() {
     },
   });
 
-  for (const colorOpt of [color.options[0], color.options[2]]) {
-    for (const sizeOpt of size.options) {
+  const hoodieColor = await prisma.attribute.create({
+    data: {
+      productId: hoodie.id,
+      name: "Color",
+      options: {
+        create: [{ value: "Black" }, { value: "Navy" }],
+      },
+    },
+    include: { options: true },
+  });
+
+  const hoodieSize = await prisma.attribute.create({
+    data: {
+      productId: hoodie.id,
+      name: "Size",
+      options: {
+        create: [{ value: "S" }, { value: "M" }, { value: "L" }, { value: "XL" }],
+      },
+    },
+    include: { options: true },
+  });
+
+  for (const colorOpt of hoodieColor.options) {
+    for (const sizeOpt of hoodieSize.options) {
       await prisma.sku.create({
         data: {
           productId: hoodie.id,
@@ -261,8 +227,30 @@ async function seed() {
     },
   });
 
-  for (const colorOpt of color.options) {
-    for (const sizeOpt of [size.options[0], size.options[1], size.options[2]]) {
+  const teeColor = await prisma.attribute.create({
+    data: {
+      productId: tee.id,
+      name: "Color",
+      options: {
+        create: [{ value: "White" }, { value: "Black" }, { value: "Navy" }, { value: "Red" }],
+      },
+    },
+    include: { options: true },
+  });
+
+  const teeSize = await prisma.attribute.create({
+    data: {
+      productId: tee.id,
+      name: "Size",
+      options: {
+        create: [{ value: "S" }, { value: "M" }, { value: "L" }],
+      },
+    },
+    include: { options: true },
+  });
+
+  for (const colorOpt of teeColor.options) {
+    for (const sizeOpt of teeSize.options) {
       await prisma.sku.create({
         data: {
           productId: tee.id,
@@ -282,7 +270,7 @@ async function seed() {
 
   console.log("Seeding orders...");
 
-  // Charlie buys from TechZone
+  await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${techStore.id}, FALSE)`;
   await prisma.order.create({
     data: {
       userId: charlie.id,
@@ -298,14 +286,9 @@ async function seed() {
     },
   });
 
-  // Alice buys from Urban Threads
-  const hoodieSku = await prisma.sku.findFirst({
-    where: { code: "CPH-BLA-M" },
-  });
-
-  const teeSku = await prisma.sku.findFirst({
-    where: { code: "ECT-WHI-L" },
-  });
+  await prisma.$executeRaw`SELECT set_config('app.current_store_id', ${clothingStore.id}, FALSE)`;
+  const hoodieSku = await prisma.sku.findFirst({ where: { code: "CPH-BLA-M" } });
+  const teeSku = await prisma.sku.findFirst({ where: { code: "ECT-WHI-L" } });
 
   if (hoodieSku && teeSku) {
     await prisma.order.create({

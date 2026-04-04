@@ -6,7 +6,11 @@ import {
   MaxLength,
   IsOptional,
   IsPositive,
+  IsArray,
+  ValidateNested,
 } from "class-validator";
+import { CreateAttributeDto } from "../../attributes/dto/create-attribute.dto";
+import { CreateSkuDto } from "./create-sku.dto";
 // with validation decorators ValidationPipe catches error BEFORE Prisma
 
 export class CreateProductDto {
@@ -25,4 +29,16 @@ export class CreateProductDto {
   @IsPositive({ message: "Price must be greater than 0" })
   @Type(() => Number)
   price!: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateAttributeDto)
+  attributes?: CreateAttributeDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateSkuDto)
+  skus?: CreateSkuDto[];
 }

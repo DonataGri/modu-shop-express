@@ -70,6 +70,7 @@ describe("AttributeSerivce", () => {
     it("should create new attribute", async () => {
       const attributeDto = {
         name: "Size",
+        options: ["M", "S"],
       };
       const created = {
         id: ATTRIBUTE_UUID,

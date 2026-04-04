@@ -12,7 +12,7 @@ const STORE_UUID = "5ec0bd7f-11c0-43da-975e-2a8ad9ebae0a";
 const PRODUCT_UUID = "7ec0bd7f-11c0-43da-975e-2a8ad9ebae0c";
 const OPTION_UUID = "8ec0bd7f-11c0-43da-975e-2a8ad9ebae0d";
 
-const BASE = `/stores/${STORE_UUID}/products/${PRODUCT_UUID}/attributes`;
+const BASE_URL = `/stores/${STORE_UUID}/products/${PRODUCT_UUID}/attributes`;
 
 const { mockService } = vi.hoisted(() => ({
   mockService: {
@@ -42,7 +42,11 @@ vi.mock("../../container", async () => {
   const storeController = new StoreController({} as StoreService);
 
   return {
-    storeRoute: createStoreRoutes({} as StoreService, storeController, productRoutes),
+    storeRoute: createStoreRoutes(
+      {} as StoreService,
+      storeController,
+      productRoutes,
+    ),
     authRoute: Router(),
   };
 });
@@ -98,7 +102,7 @@ describe("Attribute Routes", () => {
 
       mockService.findAll.mockResolvedValue(attributes);
 
-      const res = await request(app).get(BASE);
+      const res = await request(app).get(BASE_URL);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual(JSON.parse(JSON.stringify(attributes)));
@@ -107,7 +111,7 @@ describe("Attribute Routes", () => {
     it("should return 200 and empty list if no attributes found", async () => {
       mockService.findAll.mockResolvedValue([]);
 
-      const res = await request(app).get(BASE);
+      const res = await request(app).get(BASE_URL);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual([]);
@@ -116,7 +120,7 @@ describe("Attribute Routes", () => {
 
   describe("POST /stores/:storeId/products/:productId/attributes", () => {
     it("should return 201 when attribute created", async () => {
-      const dto = { name: "Color" };
+      const dto = { name: "Color", options: ["Red", "Blue"] };
       const createdAttribute = {
         id: ATTRIBUTE_UUID,
         name: "Color",
@@ -127,7 +131,7 @@ describe("Attribute Routes", () => {
 
       mockService.create.mockResolvedValue(createdAttribute);
 
-      const res = await request(app).post(BASE).send(dto);
+      const res = await request(app).post(BASE_URL).send(dto);
 
       expect(res.status).toBe(201);
       expect(res.body).toEqual(JSON.parse(JSON.stringify(createdAttribute)));
@@ -138,18 +142,18 @@ describe("Attribute Routes", () => {
         new HttpError(409, "Attribute already exists"),
       );
 
-      const res = await request(app).post(BASE).send({ name: "Color" });
+      const res = await request(app).post(BASE_URL).send({ name: "Color", options: ["Red"] });
 
       expect(res.status).toBe(409);
     });
 
     it("should return 400 when name is empty", async () => {
-      const res = await request(app).post(BASE).send({ name: "" });
+      const res = await request(app).post(BASE_URL).send({ name: "" });
       expect(res.status).toBe(400);
     });
 
     it("should return 400 when name is missing", async () => {
-      const res = await request(app).post(BASE).send({});
+      const res = await request(app).post(BASE_URL).send({});
       expect(res.status).toBe(400);
     });
   });
@@ -168,7 +172,7 @@ describe("Attribute Routes", () => {
       mockService.update.mockResolvedValue(updatedAttribute);
 
       const res = await request(app)
-        .put(`${BASE}/${ATTRIBUTE_UUID}`)
+        .put(`${BASE_URL}/${ATTRIBUTE_UUID}`)
         .send(dto);
 
       expect(res.status).toBe(200);
@@ -181,7 +185,7 @@ describe("Attribute Routes", () => {
       );
 
       const res = await request(app)
-        .put(`${BASE}/${ATTRIBUTE_UUID}`)
+        .put(`${BASE_URL}/${ATTRIBUTE_UUID}`)
         .send({ name: "Color" });
 
       expect(res.status).toBe(409);
@@ -193,7 +197,7 @@ describe("Attribute Routes", () => {
       );
 
       const res = await request(app)
-        .put(`${BASE}/UUID-999`)
+        .put(`${BASE_URL}/UUID-999`)
         .send({ name: "Updated" });
 
       expect(res.status).toBe(404);
@@ -201,14 +205,14 @@ describe("Attribute Routes", () => {
 
     it("should return 400 when name is empty", async () => {
       const res = await request(app)
-        .put(`${BASE}/${ATTRIBUTE_UUID}`)
+        .put(`${BASE_URL}/${ATTRIBUTE_UUID}`)
         .send({ name: "" });
       expect(res.status).toBe(400);
     });
 
     it("should return 400 when name is missing", async () => {
       const res = await request(app)
-        .put(`${BASE}/${ATTRIBUTE_UUID}`)
+        .put(`${BASE_URL}/${ATTRIBUTE_UUID}`)
         .send({});
       expect(res.status).toBe(400);
     });
@@ -218,7 +222,7 @@ describe("Attribute Routes", () => {
     it("should return 200 when attribute deleted", async () => {
       mockService.delete.mockResolvedValue(undefined);
 
-      const res = await request(app).delete(`${BASE}/${ATTRIBUTE_UUID}`);
+      const res = await request(app).delete(`${BASE_URL}/${ATTRIBUTE_UUID}`);
 
       expect(res.status).toBe(200);
     });
@@ -228,7 +232,7 @@ describe("Attribute Routes", () => {
         new HttpError(404, "Attribute not found"),
       );
 
-      const res = await request(app).delete(`${BASE}/UUID-999`);
+      const res = await request(app).delete(`${BASE_URL}/UUID-999`);
 
       expect(res.status).toBe(404);
     });
@@ -248,7 +252,7 @@ describe("Attribute Routes", () => {
       mockService.createOption.mockResolvedValue(createdOption);
 
       const res = await request(app)
-        .post(`${BASE}/${ATTRIBUTE_UUID}/options`)
+        .post(`${BASE_URL}/${ATTRIBUTE_UUID}/options`)
         .send(dto);
 
       expect(res.status).toBe(201);
@@ -261,7 +265,7 @@ describe("Attribute Routes", () => {
       );
 
       const res = await request(app)
-        .post(`${BASE}/${ATTRIBUTE_UUID}/options`)
+        .post(`${BASE_URL}/${ATTRIBUTE_UUID}/options`)
         .send({ value: "Black" });
 
       expect(res.status).toBe(409);
@@ -269,14 +273,14 @@ describe("Attribute Routes", () => {
 
     it("should return 400 when value is empty", async () => {
       const res = await request(app)
-        .post(`${BASE}/${ATTRIBUTE_UUID}/options`)
+        .post(`${BASE_URL}/${ATTRIBUTE_UUID}/options`)
         .send({ value: "" });
       expect(res.status).toBe(400);
     });
 
     it("should return 400 when value is missing", async () => {
       const res = await request(app)
-        .post(`${BASE}/${ATTRIBUTE_UUID}/options`)
+        .post(`${BASE_URL}/${ATTRIBUTE_UUID}/options`)
         .send({});
       expect(res.status).toBe(400);
     });
@@ -296,7 +300,7 @@ describe("Attribute Routes", () => {
       mockService.updateOption.mockResolvedValue(updatedOption);
 
       const res = await request(app)
-        .put(`${BASE}/${ATTRIBUTE_UUID}/options/${OPTION_UUID}`)
+        .put(`${BASE_URL}/${ATTRIBUTE_UUID}/options/${OPTION_UUID}`)
         .send(dto);
 
       expect(res.status).toBe(200);
@@ -309,7 +313,7 @@ describe("Attribute Routes", () => {
       );
 
       const res = await request(app)
-        .put(`${BASE}/${ATTRIBUTE_UUID}/options/${OPTION_UUID}`)
+        .put(`${BASE_URL}/${ATTRIBUTE_UUID}/options/${OPTION_UUID}`)
         .send({ value: "Black" });
 
       expect(res.status).toBe(409);
@@ -321,7 +325,7 @@ describe("Attribute Routes", () => {
       );
 
       const res = await request(app)
-        .put(`${BASE}/${ATTRIBUTE_UUID}/options/UUID-999`)
+        .put(`${BASE_URL}/${ATTRIBUTE_UUID}/options/UUID-999`)
         .send({ value: "Updated" });
 
       expect(res.status).toBe(404);
@@ -329,14 +333,14 @@ describe("Attribute Routes", () => {
 
     it("should return 400 when value is empty", async () => {
       const res = await request(app)
-        .put(`${BASE}/${ATTRIBUTE_UUID}/options/UUID-999`)
+        .put(`${BASE_URL}/${ATTRIBUTE_UUID}/options/UUID-999`)
         .send({ value: "" });
       expect(res.status).toBe(400);
     });
 
     it("should return 400 when value is missing", async () => {
       const res = await request(app)
-        .put(`${BASE}/${ATTRIBUTE_UUID}/options/UUID-999`)
+        .put(`${BASE_URL}/${ATTRIBUTE_UUID}/options/UUID-999`)
         .send({});
       expect(res.status).toBe(400);
     });
@@ -347,7 +351,7 @@ describe("Attribute Routes", () => {
       mockService.deleteOption.mockResolvedValue(undefined);
 
       const res = await request(app).delete(
-        `${BASE}/${ATTRIBUTE_UUID}/options/${OPTION_UUID}`,
+        `${BASE_URL}/${ATTRIBUTE_UUID}/options/${OPTION_UUID}`,
       );
 
       expect(res.status).toBe(200);
@@ -359,7 +363,7 @@ describe("Attribute Routes", () => {
       );
 
       const res = await request(app).delete(
-        `${BASE}/${ATTRIBUTE_UUID}/options/UUID-999`,
+        `${BASE_URL}/${ATTRIBUTE_UUID}/options/UUID-999`,
       );
 
       expect(res.status).toBe(404);

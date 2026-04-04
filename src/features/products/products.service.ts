@@ -34,9 +34,10 @@ export class ProductService {
   }
 
   async create(storeId: string, createProductDto: CreateProductDto) {
+    const { _skus, _attributes, ...productData } = createProductDto;
     try {
       return await this.db.product.create({
-        data: { ...createProductDto, storeId },
+        data: { ...productData, storeId },
       });
     } catch (err) {
       handlePrismaError(err, "Product");

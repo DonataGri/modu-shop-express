@@ -22,7 +22,9 @@ describe("ProductService", () => {
 
   beforeEach(() => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.spyOn(storeContext, "getStore").mockReturnValue(mockPrisma as unknown as PrismaClient);
+    vi.spyOn(storeContext, "getStore").mockReturnValue(
+      mockPrisma as unknown as PrismaClient,
+    );
     service = new ProductService();
     vi.clearAllMocks();
   });
@@ -92,6 +94,13 @@ describe("ProductService", () => {
       expect(result).toEqual(created);
       expect(mockPrisma.product.create).toHaveBeenCalledWith({
         data: productDto,
+        include: {
+          attributes: {
+            include: {
+              options: true,
+            },
+          },
+        },
       });
     });
   });

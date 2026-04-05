@@ -34,10 +34,28 @@ export class ProductService {
   }
 
   async create(storeId: string, createProductDto: CreateProductDto) {
-    const { _skus, _attributes, ...productData } = createProductDto;
+    const {
+      _skus,
+      attributes: productAttrbutes,
+      ...productData
+    } = createProductDto;
     try {
       return await this.db.product.create({
-        data: { ...productData, storeId },
+        data: {
+          ...productData,
+          storeId,
+          ...(productAttrbutes && {
+            attributes: {
+              create: productAttrbutes.map((att) => ({
+                name: att.name,
+                options: {
+                  create: att.options.map((option) => ({ value: option })),
+                },
+              })),
+            },
+          }),
+        },
+        include: { attributes: { include: { options: true } } },
       });
     } catch (err) {
       handlePrismaError(err, "Product");

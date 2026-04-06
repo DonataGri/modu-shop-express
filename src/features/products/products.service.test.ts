@@ -15,6 +15,7 @@ const mockPrisma = {
     update: vi.fn(),
     delete: vi.fn(),
   },
+  $transaction: vi.fn((fn) => fn(mockPrisma)),
 };
 
 describe("ProductService", () => {

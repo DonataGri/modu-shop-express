@@ -35,28 +35,44 @@ export class ProductService {
 
   async create(storeId: string, createProductDto: CreateProductDto) {
     const {
-      _skus,
+      skus,
       attributes: productAttrbutes,
       ...productData
     } = createProductDto;
     try {
-      return await this.db.product.create({
-        data: {
-          ...productData,
-          storeId,
-          ...(productAttrbutes && {
-            attributes: {
-              create: productAttrbutes.map((att) => ({
-                name: att.name,
-                options: {
-                  create: att.options.map((option) => ({ value: option })),
-                },
-              })),
-            },
-          }),
-        },
-        include: { attributes: { include: { options: true } } },
+      const results = await this.db.$transaction(async (tx) => {
+        const product = await tx.product.create({
+          data: {
+            ...productData,
+            storeId,
+            ...(productAttrbutes && {
+              attributes: {
+                create: productAttrbutes.map((attr) => ({
+                  name: attr.name,
+                  options: {
+                    create: attr.options.map((option) => ({ value: option })),
+                  },
+                })),
+              },
+            }),
+          },
+          include: { attributes: { include: { options: true } } },
+        });
+
+        if (skus) {
+          const _skusData = await Promise.all(
+            skus.map(
+              async (sku) =>
+                await tx.sku.create({
+                  data: { ...sku, productId: product.id },
+                }),
+            ),
+          );
+        }
+
+        return product;
       });
+      return results;
     } catch (err) {
       handlePrismaError(err, "Product");
     }

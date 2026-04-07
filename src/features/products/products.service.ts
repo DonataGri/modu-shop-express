@@ -60,13 +60,30 @@ export class ProductService {
         });
 
         if (skus) {
-          const _skusData = await Promise.all(
-            skus.map(
-              async (sku) =>
-                await tx.sku.create({
-                  data: { ...sku, productId: product.id },
-                }),
-            ),
+          await Promise.all(
+            skus.map(async (sku) => {
+              const { attributeOptions, ...skuData } = sku;
+              const createdSku = await tx.sku.create({
+                data: { ...skuData, productId: product.id },
+              });
+              if (attributeOptions) {
+                const links = Object.entries(attributeOptions).map(
+                  ([attrName, optionValue]) => {
+                    const attribute = product.attributes.find(
+                      (a) => a.name === attrName,
+                    );
+                    const option = attribute?.options.find(
+                      (o) => o.value === optionValue,
+                    );
+                    return {
+                      skuId: createdSku.id,
+                      attributeOptionId: option!.id,
+                    };
+                  },
+                );
+                await tx.skuAttributeOption.createMany({ data: links });
+              }
+            }),
           );
         }
 

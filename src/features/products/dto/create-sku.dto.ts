@@ -11,6 +11,7 @@ import {
 
 export class CreateSkuDto {
   @IsString()
+  @IsOptional()
   @IsNotEmpty()
   code!: string;
 

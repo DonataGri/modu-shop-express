@@ -15,6 +15,8 @@ const mockPrisma = {
     update: vi.fn(),
     delete: vi.fn(),
   },
+  sku: { create: vi.fn() },
+  skuAttributeOption: { createMany: vi.fn() },
   $transaction: vi.fn((fn) => fn(mockPrisma)),
 };
 
@@ -80,29 +82,184 @@ describe("ProductService", () => {
   });
 
   describe("create", () => {
-    it("should create new product", async () => {
-      const productDto = {
-        name: "Test Name",
-        price: 9.99,
-        storeId: STORE_UUID,
-      };
-      const created = { id: PRODUCT_UUID, ...productDto };
+    it("should create new product with default sku when no skus provided", async () => {
+      vi.spyOn(crypto, "randomUUID").mockReturnValue(
+        "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b",
+      );
 
-      mockPrisma.product.create.mockResolvedValue(created);
+      const productDto = { name: "Test Name", price: 9.99 };
+      const productFromCreate = {
+        id: PRODUCT_UUID,
+        storeId: STORE_UUID,
+        ...productDto,
+        attributes: [],
+      };
+      const createdSku = {
+        id: "sku-id",
+        code: "test-name-6EC0BD7F",
+        productId: PRODUCT_UUID,
+      };
+      const fullProduct = {
+        ...productFromCreate,
+        skus: [{ ...createdSku, skuAttributeOptions: [] }],
+      };
+
+      mockPrisma.product.create.mockResolvedValue(productFromCreate);
+      mockPrisma.sku.create.mockResolvedValue(createdSku);
+      mockPrisma.product.findUnique.mockResolvedValue(fullProduct);
 
       const result = await service.create(STORE_UUID, productDto);
 
-      expect(result).toEqual(created);
-      expect(mockPrisma.product.create).toHaveBeenCalledWith({
-        data: productDto,
-        include: {
-          attributes: {
-            include: {
-              options: true,
-            },
-          },
-        },
+      expect(result).toEqual(fullProduct);
+      expect(mockPrisma.sku.create).toHaveBeenCalledWith({
+        data: { code: "test-name-6EC0BD7F", productId: PRODUCT_UUID },
       });
+    });
+
+    it("should create product with attributes and default sku", async () => {
+      vi.spyOn(crypto, "randomUUID").mockReturnValue(
+        "6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b",
+      );
+
+      const productDto = {
+        name: "T-Shirt",
+        price: 29.99,
+        attributes: [{ name: "Color", options: ["BLUE", "PINK"] }],
+      };
+      const productFromCreate = {
+        id: PRODUCT_UUID,
+        storeId: STORE_UUID,
+        name: "T-Shirt",
+        price: 29.99,
+        attributes: [
+          {
+            id: "attr-id",
+            name: "Color",
+            options: [
+              { id: "opt-blue", value: "BLUE" },
+              { id: "opt-pink", value: "PINK" },
+            ],
+          },
+        ],
+      };
+      const createdSku = {
+        id: "sku-id",
+        code: "t-shirt-6EC0BD7F",
+        quantity: 0,
+        productId: PRODUCT_UUID,
+      };
+
+      const fullProduct = {
+        ...productFromCreate,
+        skus: [{ ...createdSku, skuAttributeOptions: [] }],
+      };
+
+      mockPrisma.product.create.mockResolvedValue(productFromCreate);
+      mockPrisma.sku.create.mockResolvedValue(createdSku);
+      mockPrisma.product.findUnique.mockResolvedValue(fullProduct);
+
+      const result = await service.create(STORE_UUID, productDto);
+
+      expect(result).toEqual(fullProduct);
+      expect(mockPrisma.sku.create).toHaveBeenCalledWith({
+        data: { code: "t-shirt-6EC0BD7F", productId: PRODUCT_UUID },
+      });
+      expect(mockPrisma.skuAttributeOption.createMany).not.toHaveBeenCalled();
+    });
+
+    it("should create product with skus and no attribute options", async () => {
+      const productDto = {
+        name: "Coffee Mug",
+        price: 12.99,
+        skus: [{ code: "MUG-001", quantity: 50 }],
+      };
+      const productFromCreate = {
+        id: PRODUCT_UUID,
+        storeId: STORE_UUID,
+        name: "Coffee Mug",
+        price: 12.99,
+        attributes: [],
+      };
+      const createdSku = {
+        id: "sku-id",
+        code: "MUG-001",
+        quantity: 50,
+        productId: PRODUCT_UUID,
+      };
+      const fullProduct = {
+        ...productFromCreate,
+        skus: [{ ...createdSku, skuAttributeOptions: [] }],
+      };
+
+      mockPrisma.product.create.mockResolvedValue(productFromCreate);
+      mockPrisma.sku.create.mockResolvedValue(createdSku);
+      mockPrisma.product.findUnique.mockResolvedValue(fullProduct);
+
+      const result = await service.create(STORE_UUID, productDto);
+
+      expect(mockPrisma.sku.create).toHaveBeenCalledWith({
+        data: { code: "MUG-001", quantity: 50, productId: PRODUCT_UUID },
+      });
+      expect(mockPrisma.skuAttributeOption.createMany).not.toHaveBeenCalled();
+      expect(result).toEqual(fullProduct);
+    });
+
+    it("should create product with skus and attribute options", async () => {
+      const productDto = {
+        name: "T-Shirt",
+        price: 29.99,
+        attributes: [{ name: "Color", options: ["BLUE"] }],
+        skus: [
+          {
+            code: "TSHIRT-BLUE",
+            quantity: 10,
+            attributeOptions: { Color: "BLUE" },
+          },
+        ],
+      };
+      const productFromCreate = {
+        id: PRODUCT_UUID,
+        storeId: STORE_UUID,
+        name: "T-Shirt",
+        price: 29.99,
+        attributes: [
+          {
+            id: "attr-id",
+            name: "Color",
+            options: [{ id: "opt-blue", value: "BLUE" }],
+          },
+        ],
+      };
+      const createdSku = {
+        id: "sku-id",
+        code: "TSHIRT-BLUE",
+        quantity: 10,
+        productId: PRODUCT_UUID,
+      };
+      const fullProduct = {
+        ...productFromCreate,
+        skus: [
+          {
+            ...createdSku,
+            skuAttributeOptions: [{ attributeOptionId: "opt-blue" }],
+          },
+        ],
+      };
+
+      mockPrisma.product.create.mockResolvedValue(productFromCreate);
+      mockPrisma.sku.create.mockResolvedValue(createdSku);
+      mockPrisma.skuAttributeOption.createMany.mockResolvedValue({ count: 1 });
+      mockPrisma.product.findUnique.mockResolvedValue(fullProduct);
+
+      const result = await service.create(STORE_UUID, productDto);
+
+      expect(mockPrisma.sku.create).toHaveBeenCalledWith({
+        data: { code: "TSHIRT-BLUE", quantity: 10, productId: PRODUCT_UUID },
+      });
+      expect(mockPrisma.skuAttributeOption.createMany).toHaveBeenCalledWith({
+        data: [{ skuId: "sku-id", attributeOptionId: "opt-blue" }],
+      });
+      expect(result).toEqual(fullProduct);
     });
   });
 

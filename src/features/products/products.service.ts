@@ -12,6 +12,18 @@ import { handlePrismaError } from "../../shared/utils/prisma-error-handler";
 import type { CreateProductDto } from "./dto/create-product.dto";
 import type { UpdateProductDto } from "./dto/update-product.dto";
 
+function generateSkuCode(
+  name: string,
+  attributeOptions?: Record<string, string>,
+) {
+  const base = name.toLowerCase().replace(/\s+/g, "-");
+  const attrs = attributeOptions
+    ? Object.values(attributeOptions).join("-").toLowerCase()
+    : "";
+  const suffix = crypto.randomUUID().split("-")[0]!.toUpperCase();
+  return [base, attrs, suffix].filter(Boolean).join("-");
+}
+
 export class ProductService {
   private get db() {
     return storeContext.getStore()!;
@@ -59,13 +71,17 @@ export class ProductService {
           include: { attributes: { include: { options: true } } },
         });
 
-        if (skus) {
+        if (skus && skus.length > 0) {
           await Promise.all(
             skus.map(async (sku) => {
               const { attributeOptions, ...skuData } = sku;
+              const code =
+                skuData.code ??
+                generateSkuCode(productData.name, attributeOptions);
               const createdSku = await tx.sku.create({
-                data: { ...skuData, productId: product.id },
+                data: { ...skuData, code, productId: product.id },
               });
+
               if (attributeOptions) {
                 const links = Object.entries(attributeOptions).map(
                   ([attrName, optionValue]) => {
@@ -85,9 +101,26 @@ export class ProductService {
               }
             }),
           );
+        } else {
+          await tx.sku.create({
+            data: {
+              code: generateSkuCode(productData.name),
+              productId: product.id,
+            },
+          });
         }
 
-        return product;
+        return tx.product.findUnique({
+          where: { id: product.id },
+          include: {
+            attributes: { include: { options: true } },
+            skus: {
+              include: {
+                skuAttributeOptions: { include: { attributeOption: true } },
+              },
+            },
+          },
+        });
       });
       return results;
     } catch (err) {

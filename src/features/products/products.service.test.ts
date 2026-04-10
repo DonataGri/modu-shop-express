@@ -97,6 +97,7 @@ describe("ProductService", () => {
       const createdSku = {
         id: "sku-id",
         code: "test-name-6EC0BD7F",
+        quantity: 0,
         productId: PRODUCT_UUID,
       };
       const fullProduct = {

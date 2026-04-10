@@ -143,6 +143,67 @@ describe("Product Routes", () => {
         updatedAt: new Date(),
         createdAt: new Date(),
       };
+      // @ts-expect-error - test mock doesn't need full Prisma shape
+      mockService.create.mockResolvedValue(createdProduct);
+
+      const res = await request(app)
+        .post(`/stores/${STORE_UUID}/products`)
+        .send(dto);
+      expect(res.status).toBe(201);
+      expect(res.body).toEqual(JSON.parse(JSON.stringify(createdProduct)));
+    });
+
+    it("should return 201 when product created with attributes and skus", async () => {
+      const dto = {
+        name: "T-Shirt",
+        price: 29.99,
+        attributes: [{ name: "Color", options: ["BLUE", "PINK"] }],
+        skus: [
+          {
+            code: "TSHIRT-BLUE",
+            quantity: 10,
+            attributeOptions: { Color: "BLUE" },
+          },
+          {
+            code: "TSHIRT-PINK",
+            quantity: 5,
+            attributeOptions: { Color: "PINK" },
+          },
+        ],
+      };
+      const createdProduct = {
+        id: PRODUCT_UUID,
+        storeId: STORE_UUID,
+        name: dto.name,
+        price: new Prisma.Decimal(dto.price),
+        updatedAt: new Date(),
+        createdAt: new Date(),
+        attributes: [
+          {
+            id: "attr-id",
+            name: "Color",
+            options: [
+              { id: "opt-blue", value: "BLUE" },
+              { id: "opt-pink", value: "PINK" },
+            ],
+          },
+        ],
+        skus: [
+          {
+            id: "sku-1",
+            code: "TSHIRT-BLUE",
+            quantity: 10,
+            skuAttributeOptions: [{ attributeOptionId: "opt-blue" }],
+          },
+          {
+            id: "sku-2",
+            code: "TSHIRT-PINK",
+            quantity: 5,
+            skuAttributeOptions: [{ attributeOptionId: "opt-pink" }],
+          },
+        ],
+      };
+      // @ts-expect-error - test mock doesn't need full Prisma shape
       mockService.create.mockResolvedValue(createdProduct);
 
       const res = await request(app)
@@ -166,6 +227,18 @@ describe("Product Routes", () => {
         .send({ price: -9.99 });
 
       expect(res.status).toBe(400);
+    });
+
+    it("should return 409 when sku code already exists", async () => {
+      mockService.create.mockRejectedValue(
+        new HttpError(409, "Product already exists"),
+      );
+
+      const res = await request(app)
+        .post(`/stores/${STORE_UUID}/products`)
+        .send({ name: "T-Shirt", price: 29.99, skus: [{ code: "DUPLICATE-CODE" }] });
+
+      expect(res.status).toBe(409);
     });
   });
 
